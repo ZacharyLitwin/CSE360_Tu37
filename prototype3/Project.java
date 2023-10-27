@@ -1,6 +1,8 @@
 package prototype3;
 import java.io.Serializable;
 
+
+//this class is a PLACEHOLDER CLASS
 public class Project implements Serializable {
     
 	private static final long serialVersionUID = -5695355434022433547L;
