@@ -1,0 +1,11 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+#root {
+    -fx-background-color: #f0f0f0; /* Use the color of your choice */
+}
+
+/* Style the title*/
+.label-title {
+    -fx-font-size: 24px; /* Set the font size */
+    -fx-font-weight: bold; /* Make the title bold */
+    -fx-text-fill: #333333; /* Set the text color */
+}
