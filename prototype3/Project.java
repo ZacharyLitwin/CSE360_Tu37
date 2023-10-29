@@ -1,8 +1,12 @@
+//Group:	Tu-37
+//Author:	Zachary Litwin
+
 package prototype3;
 import java.io.Serializable;
 
 
-//this class is a PLACEHOLDER CLASS
+// this class is a PLACEHOLDER CLASS and is NOT a part of effort logger
+// to be used in testing ONLY
 public class Project implements Serializable {
     
 	private static final long serialVersionUID = -5695355434022433547L;
