@@ -123,15 +123,16 @@ public class ObjectSaver {
 		System.out.println("Orginal Project: " + project.getName() + ", " + project.getData());
 		System.out.println("Orginal Login: " + login.getUsername() + ", " + login.getPassword());
 		System.out.println("Orginal PlanningPoker: " + poker.getSessionId() + ", " + poker.getItemName() + ", " + poker.getItemEstimate());
-		System.out.println("Orginal Project: " + project.getName() + ", " + project.getData());
-		System.out.println("Orginal Login: " + login.getUsername() + ", " + login.getPassword());
-		System.out.println("Orginal PlanningPoker: " + poker.getSessionId() + ", " + poker.getItemName() + ", " + poker.getItemEstimate());
+		System.out.println("Orginal Project: " + project2.getName() + ", " + project2.getData());
+		System.out.println("Orginal Login: " + login2.getUsername() + ", " + login2.getPassword());
+		System.out.println("Orginal PlanningPoker: " + poker2.getSessionId() + ", " + poker2.getItemName() + ", " + poker2.getItemEstimate());
 
         // Save all objects to files
     	System.out.println(""); // just for easier to read spacing
-        saveObjectToFile(project, "project2.ser");
-        saveObjectToFile(login, "login2.ser");
-        saveObjectToFile(poker, "poker2.ser");
+		System.out.println("Save all the created objects to files");
+        saveObjectToFile(project, "project.ser");
+        saveObjectToFile(login, "login.ser");
+        saveObjectToFile(poker, "poker.ser");
         saveObjectToFile(project2, "project2.ser");
         saveObjectToFile(login2, "login2.ser");
         saveObjectToFile(poker2, "poker2.ser");
@@ -152,19 +153,21 @@ public class ObjectSaver {
 	   	System.out.println("Changed Project: " + project.getName() + ", " + project.getData());
 		System.out.println("Changed Login: " + login.getUsername() + ", " + login.getPassword());
 		System.out.println("Changed PlanningPoker: " + poker.getSessionId() + ", " + poker.getItemName() + ", " + poker.getItemEstimate());
-		System.out.println("Changed Project: " + project.getName() + ", " + project.getData());
-		System.out.println("Changed Login: " + login.getUsername() + ", " + login.getPassword());
-		System.out.println("Changed PlanningPoker: " + poker.getSessionId() + ", " + poker.getItemName() + ", " + poker.getItemEstimate());
+		System.out.println("Changed Project: " + project2.getName() + ", " + project2.getData());
+		System.out.println("Changed Login: " + login2.getUsername() + ", " + login2.getPassword());
+		System.out.println("Changed PlanningPoker: " + poker2.getSessionId() + ", " + poker2.getItemName() + ", " + poker2.getItemEstimate());
 	 
 		
         // save the second set of objects to the files to update values
 		System.out.println(""); // just for easier to read spacing
+		System.out.println("Update the files for the second set of objects");
         saveObjectToFile(project2, "project2.ser");
         saveObjectToFile(login2, "login2.ser");
         saveObjectToFile(poker2, "poker2.ser");
 
         
         // Load objects from files
+        System.out.println(""); // just for easier to read spacing in console
         Project loadedProject = (Project) loadObjectFromFile("project.ser");
         Login loadedLogin = (Login) loadObjectFromFile("login.ser");
         PlanningPoker loadedPoker = (PlanningPoker) loadObjectFromFile("poker.ser");
@@ -172,6 +175,14 @@ public class ObjectSaver {
         Login loadedLogin2 = (Login) loadObjectFromFile("login2.ser");
         PlanningPoker loadedPoker2 = (PlanningPoker) loadObjectFromFile("poker2.ser");
         
+        
+        // try to read a file that doesn't exist
+        // it should throw errors and continue
+        System.out.println(""); // just for easier to read spacing
+        Project loadedProject3 = (Project) loadObjectFromFile("project3.ser");
+        if (loadedProject3 != null) {
+            System.out.println("Saved Project: " + loadedProject3.getName() + ", " + loadedProject3.getData());
+        }
         
         // display the saved object information
     	System.out.println(""); // just for easier to read spacing
@@ -186,13 +197,15 @@ public class ObjectSaver {
             System.out.println("Saved PlanningPoker: " + loadedPoker.getSessionId() + ", " + loadedPoker.getItemName() + ", " + loadedPoker.getItemEstimate());
         }
         if (loadedProject2 != null) {
-            System.out.println("Saved Project2: " + loadedProject.getName() + ", " + loadedProject.getData());
+            System.out.println("Saved Project2: " + loadedProject2.getName() + ", " + loadedProject2.getData());
         }
         if (loadedLogin2 != null) {
-            System.out.println("Saved Login2: " + loadedLogin.getUsername() + ", " + loadedLogin.getPassword());
+            System.out.println("Saved Login2: " + loadedLogin2.getUsername() + ", " + loadedLogin2.getPassword());
         }
         if (loadedPoker2 != null) {
-            System.out.println("Saved PlanningPoker2: " + loadedPoker.getSessionId() + ", " + loadedPoker.getItemName() + ", " + loadedPoker.getItemEstimate());
+            System.out.println("Saved PlanningPoker2: " + loadedPoker2.getSessionId() + ", " + loadedPoker2.getItemName() + ", " + loadedPoker2.getItemEstimate());
         }
+        
+        
     }
 }
