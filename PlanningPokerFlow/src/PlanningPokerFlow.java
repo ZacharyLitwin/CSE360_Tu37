@@ -1,3 +1,4 @@
+//Author: Zachary Litwin
 import java.util.ArrayList;
 import java.util.Scanner; // only used in main testing
 
