@@ -28,7 +28,7 @@
                   <Font name="System Bold" size="12.0" />
                </font>
             </Text>
-            <Button layoutX="412.0" layoutY="70.0" mnemonicParsing="false" onAction="#clearLogBtn" text="Clear This Effort Log" />
+            <Button fx:id="clearBtn" layoutX="412.0" layoutY="70.0" mnemonicParsing="false" onAction="#clearLogBtn" text="Clear This Effort Log" />
             <Text fx:id="effortLogEntryText" layoutX="67.0" layoutY="108.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No effort log entries for this project." />
             <Text layoutX="14.0" layoutY="125.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2.b. Select the Effort Log Entry to be modified and make it the Current Effort Log Entry.">
                <font>
@@ -44,9 +44,9 @@
             </Text>
             <Text layoutX="34.0" layoutY="208.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Date: " />
             <Text layoutX="211.0" layoutY="208.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Start Time:" />
-            <TextField layoutX="275.0" layoutY="191.0" onAction="#StartTimeChanged" prefHeight="25.0" prefWidth="123.0" />
+            <TextField fx:id="startTimeField" layoutX="275.0" layoutY="191.0" onAction="#StartTimeChanged" prefHeight="25.0" prefWidth="123.0" />
             <Text layoutX="417.0" layoutY="208.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Stop Time:" />
-            <TextField layoutX="482.0" layoutY="191.0" onAction="#stopTimeChanged" prefHeight="25.0" prefWidth="123.0" />
+            <TextField fx:id="stopTimeField" layoutX="482.0" layoutY="191.0" onAction="#stopTimeChanged" prefHeight="25.0" prefWidth="123.0" />
             <Text layoutX="34.0" layoutY="246.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Life Cycle Step:">
                <font>
                   <Font name="System Bold" size="12.0" />
@@ -63,6 +63,11 @@
             </Text>
             <ComboBox fx:id="categories" layoutX="34.0" layoutY="292.0" onAction="#categoryChanged" prefHeight="25.0" prefWidth="216.0" />
             <ComboBox fx:id="plans" layoutX="261.0" layoutY="292.0" onAction="#planChanged" prefHeight="25.0" prefWidth="313.0" />
+            <ComboBox fx:id="deliverables" layoutX="261.0" layoutY="292.0" onAction="#deliverableChanged" prefHeight="25.0" prefWidth="313.0" />
+            <ComboBox fx:id="interruptions" layoutX="261.0" layoutY="292.0" onAction="#interruptionChanged" prefHeight="25.0" prefWidth="313.0" />
+            <ComboBox fx:id="defects" layoutX="261.0" layoutY="292.0" onAction="#defectChanged" prefHeight="25.0" prefWidth="313.0" />
+            <ComboBox fx:id="others" layoutX="261.0" layoutY="292.0" onAction="#otherChanged" prefHeight="25.0" prefWidth="313.0" />
+            
             <Text fx:id="attributesChangesSaved" layoutX="65.0" layoutY="354.0" strokeType="OUTSIDE" strokeWidth="0.0" text="These attributes have been saved." />
             <Button fx:id="updateBtn" layoutX="258.0" layoutY="337.0" mnemonicParsing="false" onAction="#updateEntryBtn" text="Update This Entry" />
             <Text layoutX="21.0" layoutY="378.0" strokeType="OUTSIDE" strokeWidth="0.0" text="3.b. Delete the Current Effort Log Entry">
@@ -83,7 +88,7 @@
             </Text>
             <Button fx:id="splitBtn" layoutX="49.0" layoutY="431.0" mnemonicParsing="false" onAction="#splitEntryBtn" text="Split This Entry into Two Entries" />
             <Button fx:id="toLogBtn" layoutX="387.0" layoutY="431.0" mnemonicParsing="false" onAction="#proceedToLogBtn" text="Proceed to the Effort Log Console" />
-            <TextField layoutX="66.0" layoutY="191.0" onAction="#dateChanged" prefHeight="25.0" prefWidth="136.0" />
+            <TextField fx:id="dateField" layoutX="66.0" layoutY="191.0" onAction="#dateChanged" prefHeight="25.0" prefWidth="136.0" />
          </children>
     </AnchorPane>
   </children>
