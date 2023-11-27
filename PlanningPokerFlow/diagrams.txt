@@ -1,0 +1,119 @@
+CLASS DIAGRAM
++------------------------------------------+
+|    PlanningPokerFlow                     |
++------------------------------------------+
+| -MAX_PLAYERS: int                        |
+| -MIN_PLAYERS: int                        |
+| -POSSIBLE_CARD_VALUES: int[]             |
+| -numberOfPlayers: int                    |
+| -playersPlayed: int                      |
+| -cardValues: ArrayList<Integer>          |
++------------------------------------------+
+| +PlanningPokerFlow()                     |
+| +setNumberOfPlayer(number: int): boolean |
+| +giveCardValue(value: int): int          |
+| +checkResults(): int[]                   |
+| +reset(): void                           |
++------------------------------------------+
+
+
+
+ACTIVITY DIAGRAM
++-----------------------------+
+| PlanningPokerFlow           |
++-----------------------------+
+|                             |
+| - numberOfPlayers           |
+| - playersPlayed             |
+| - cardValues                |
+|                             |
++-----------------------------+
+| + setNumberOfPlayer()       |
+| + giveCardValue()           |
+| + checkResults()            |
+| + reset()                   |
+|                             |
++-----------------------------+
+       |               |
+       v               v
++-----------------------------+
+| setNumberOfPlayer           |
++-----------------------------+
+| Enter the number of players |
+|                             |
+| if (valid number)           |
+|   - set numberOfPlayers     |
+| else                        |
+|   - display error message   |
++-----------------------------+
+
+       |               |
+       v               v
++-----------------------------+
+| giveCardValue               |
++-----------------------------+
+| Enter your card value       |
+| if (valid value)            |
+|   - add value to cardValues |
+|   - increment playersPlayed |
+|   - if (all players played) |
+|     - checkResults          |
+| else                        |
+|   - display error message   |
++-----------------------------+
+
+       |               |
+       v               v
++-----------------------------+
+| checkResults                |
++-----------------------------+
+| if (not all players played) |
+|   - display error message   |
+| else                        |
+|   - find outliers           |
+|   - display results         |
++-----------------------------+
+
+       |               |
+       v               v
++-----------------------------+
+| reset                       |
++-----------------------------+
+| set numberOfPlayers to 0    |
+| set playersPlayed to 0      |
+| clear cardValues            |
++-----------------------------+
+
+
+
+
+
+
+SEQUENCE DIAGRAM
++---------------------+        +---------------------+        +---------------------+
+|    User             |        |PlanningPokerFlow    |        |Scanner/Outside Class|
++---------------------+        +---------------------+        +---------------------+
+        |                             |                               |
+        |                             |                               |
+        |                             |                               |
+        |                             |                               |
+        |                             |                               |
+        |                             |                               |
+        |                             |                               |
+        +---------------------------► |                               |
+        |                             |                               |
+        |                             | new PlanningPokerFlow()       |
+        |                             |-----------------------------► |
+        |                             |                               |
+        |                             | setNumberOfPlayer(5)          |
+        |                             |-----------------------------► |
+        |                             |                               |
+        |                             | giveCardValue(8)              |
+        |                             |-----------------------------► |
+        |                             |                               |
+        |                             | checkResults()                |
+        |                             |-----------------------------► |
+        |                             |                               |
+        |                             | reset()                       |
+        |                             |-----------------------------► |
+        |                             |                               |
