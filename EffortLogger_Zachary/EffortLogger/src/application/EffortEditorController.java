@@ -1,5 +1,6 @@
 package application;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,7 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
+import application.EffortEditorController.Entry;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,6 +28,35 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
 public class EffortEditorController {
+	// class used to hold entry data
+	class Entry
+	{
+		public String projectName;
+	    public String date; 
+	    public String startTime;  
+	    public String stopTime;  
+	    public String lifeCycleStep;
+	    public String category;
+	    public String detail;
+	    
+	    public String toString() {
+			return date + startTime + stopTime + lifeCycleStep + category + detail;
+	    }
+	 };
+	 
+	 // this will hold the entries
+	 ArrayList<Entry> entryList = new ArrayList<Entry>();
+	 
+	 ArrayList<String> dates = new ArrayList<String>();
+	 ArrayList<String> startTimes = new ArrayList<String>();
+	 ArrayList<String> stopTimes = new ArrayList<String>();
+	 ArrayList<String> lifeCycleSteps = new ArrayList<String>();
+	 ArrayList<String> categorys = new ArrayList<String>();
+	 ArrayList<String> details = new ArrayList<String>();
+	 ArrayList<String> projectNames = new ArrayList<String>();
+	 
+	 ObservableList<String> entriesList = FXCollections.observableArrayList();
+	 
 	
 	//	DATABASE TOOLS
 	private Connection connect;
@@ -99,6 +131,11 @@ public class EffortEditorController {
     void projectSelected(ActionEvent event) {
     	// test message 
     	System.out.println("A Project was selected");
+    	
+    	// populate the entry list with the matching entries
+    	entrylistmaker(entriesList, projectNames, dates, startTimes, stopTimes, lifeCycleSteps, categorys, details); 
+    	entries.setItems(entriesList);	
+    	
     	
     	// enable the next controls to access
     	entries.setDisable(false);
@@ -315,7 +352,7 @@ public class EffortEditorController {
     @FXML
     void initialize() {
         assert attributesChangesSaved != null : "fx:id=\"attributesChangesSaved\" was not injected: check your FXML file 'EffortEditor.fxml'.";
-        assert categories != null : "fx:id=\"categories\" was not injected: check your FXML file 'EffortEditor.fxml'.";
+        assert categorys != null : "fx:id=\"categories\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert deleteBtn != null : "fx:id=\"deleteBtn\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert effortLogEntryText != null : "fx:id=\"effortLogEntryText\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert entries != null : "fx:id=\"entries\" was not injected: check your FXML file 'EffortEditor.fxml'.";
@@ -357,6 +394,14 @@ public class EffortEditorController {
     	setCBox(interruptions);
     	setCBox(defects);
     	setCBox(others);
+    	
+    	setArrayList(projectNames,"projectName","entries");
+    	setArrayList(dates,"date","entries");
+    	setArrayList(startTimes,"startTime","entries");
+    	setArrayList(stopTimes,"stopTime","entries");
+    	setArrayList(lifeCycleSteps,"lifeCycleStep","entries");
+    	setArrayList(categorys,"category","entries");
+    	setArrayList(details,"detail","entries");
 
     }
     
@@ -395,4 +440,61 @@ public class EffortEditorController {
 		    }
 		}
     }
+	 //-----------------------------------------------------------------------------------
+    // function that populates an arraylist with values from the SQL table column name
+    //-----------------------------------------------------------------------------------
+	// 1. date ( time - time) lifeCycleStep; Effort Category: Details
+	
+	void setArrayList(ArrayList<String> cb, String name, String table) {
+		String sql = "SELECT "+ name +" FROM " + table;
+		connect = database.connectDb("definitions");
+		try {
+			result = connect.createStatement().executeQuery(sql);
+			while(result.next()) {	
+				cb.add(new String(result.getString(1)));
+				System.out.println(result.getString(1));
+			}	
+		}catch(Exception e) {e.printStackTrace();}
+		finally{
+			if (result != null) {
+		        try {
+		            result.close();
+		        } catch (SQLException e) {e.addSuppressed(null);}
+		    }
+		    if (prepare != null) {
+		        try {
+		            prepare.close();
+		        } catch (SQLException e) { e.addSuppressed(null);}
+		    }
+		    if (connect != null) {
+		        try {
+		            connect.close();
+		        } catch (SQLException e) { e.addSuppressed(null);}
+		    }
+		}
+		
+    }
+	void entrylistmaker(ObservableList<String> entrys, ArrayList<String> projectNames, ArrayList<String> date, ArrayList<String> startTimes,
+			ArrayList<String> stopTimes, ArrayList<String> lifeCycleSteps, ArrayList<String> categories, ArrayList<String> details) {
+		entrys.clear();
+		for(int i = 0; i < date.size(); i++) {
+			Entry entry = new Entry();
+			entry.projectName = projectNames.get(i);
+			entry.date = date.get(i);
+			entry.startTime = startTimes.get(i);
+			entry.stopTime = stopTimes.get(i);		
+			entry.lifeCycleStep = lifeCycleSteps.get(i);
+			entry.category = categories.get(i);
+			entry.detail = details.get(i);
+			entryList.add(entry);
+			if(entry.projectName.equals(projects.getValue())) {
+				entrys.add(entry.toString());
+			}
+			System.out.println(entry.toString());
+		}
+	}
+	
+	
+	
+
 }
