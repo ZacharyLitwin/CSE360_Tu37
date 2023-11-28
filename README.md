@@ -4,7 +4,7 @@ for CSE360 project
 EffortLogger_Alma: it is the zip file of the same name that Alma uploaded to the discord on 11/26
 
 EffortLogger_Zachary: Partially adds the Effort Editor screen. The starting screen was changed to be the Effort editor screen for testing. Finished javaFX with Scene Builder. I changed how the entries are defined in SQL.
-They now have data DATE, startTime TIME, stopTime TIME, lifeCycles, Categories, and details. This is shown in the entriesSQL.png.
+They now have data DATE, startTime TIME, stopTime TIME, lifeCycles, Categories, and details. This is shown in the entriesSQL.png. There are now functions that allow for the insertion and deletions of entries in mySQL.
 
 EffortLogger_Karryl: Please explain your additions to effortlogger here
 
