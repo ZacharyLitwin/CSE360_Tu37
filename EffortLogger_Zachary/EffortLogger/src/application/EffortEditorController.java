@@ -60,7 +60,7 @@ public class EffortEditorController {
         return matcher.matches();
     }
 	
-	// class used to hold entry data
+	// redefined class used to hold entry data
 	class Entry
 	{
 		public Integer entriesID;
@@ -173,11 +173,7 @@ public class EffortEditorController {
     void entrySelected(ActionEvent event) {
     	// test message
     	System.out.println("An Entry was selected");
-    	
-    	startTimeField.setText("something");
-        stopTimeField.setText("goes");
-        dateField.setText("here");
-        
+    	    
         // find the selected entry from the entry list
         Entry selectedEntry = new Entry();
 		for(int i = 0; i < entryList.size(); i++) {
@@ -185,7 +181,6 @@ public class EffortEditorController {
     			selectedEntry = entryList.get(i);
     		}
 		}
-
     	
     	// enable the next controls and set intial values from selected Entry
 		 lifecycles.setDisable(false);
@@ -207,7 +202,6 @@ public class EffortEditorController {
         dateField.setText(selectedEntry.date);
         
         splitBtn.setDisable(false);
-        toLogBtn.setDisable(false);
         updateBtn.setDisable(false);
         deleteBtn.setDisable(false);
     }
@@ -333,6 +327,15 @@ public class EffortEditorController {
     @FXML
     void proceedToLogBtn(ActionEvent event) {
     	System.out.println("The Proceed To Log button was pressed");
+    	try {
+    		toLogBtn.getScene().getWindow().hide();
+			Parent root = FXMLLoader.load(getClass().getResource("EffortConsole.fxml"));
+			Stage stage = new Stage();
+			Scene scene = new Scene(root);
+			
+			stage.setScene(scene);
+			stage.show();
+    	}catch(Exception e) {e.printStackTrace();}
     }
     
     // Splits a entry by getting the original's info duplicating it, adjusting the times
@@ -440,7 +443,6 @@ public class EffortEditorController {
         startTimeField.setDisable(true);
         dateField.setDisable(true);
         splitBtn.setDisable(true);
-        toLogBtn.setDisable(true);
         updateBtn.setDisable(true);
         deleteBtn.setDisable(true);
         clearBtn.setDisable(true);
@@ -599,7 +601,7 @@ public class EffortEditorController {
 			try {
 				preparedStmt = connect.prepareStatement(query);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				// Auto-generated catch block
 				e.printStackTrace();
 			}
 		      try {
