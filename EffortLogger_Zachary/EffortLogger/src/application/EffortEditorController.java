@@ -1,7 +1,10 @@
+// Author: Zachary Litwin
+// Group: TU-37
 package application;
 
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -9,7 +12,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import application.EffortEditorController.Entry;
 import javafx.collections.FXCollections;
@@ -28,9 +37,33 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
 public class EffortEditorController {
+	
+	// this represents the expected input of the date text field
+	private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
+	// Define the date format that matches your input string
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	// this represents the expected input of the date text field
+    private static final String TIME_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]";
+    // Define the time format that matches your input string
+    SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    
+    // boolean function that checks if a input is of the correct date pattern
+    public static boolean isValidDate(String date) {
+        Pattern pattern = Pattern.compile(DATE_PATTERN);
+        Matcher matcher = pattern.matcher(date);
+        return matcher.matches();
+    }
+	// boolean function that checks if a input is of the correct time pattern
+    public static boolean isValidTime(String time) {
+        Pattern pattern = Pattern.compile(TIME_PATTERN);
+        Matcher matcher = pattern.matcher(time);
+        return matcher.matches();
+    }
+	
 	// class used to hold entry data
 	class Entry
 	{
+		public Integer entriesID;
 		public String projectName;
 	    public String date; 
 	    public String startTime;  
@@ -40,13 +73,14 @@ public class EffortEditorController {
 	    public String detail;
 	    
 	    public String toString() {
-			return date + startTime + stopTime + lifeCycleStep + category + detail;
+			return entriesID + ". " + date +" ( "+ startTime +"-"+ stopTime +" ) "+ lifeCycleStep +"; "+ category +"; "+ detail;
 	    }
 	 };
 	 
-	 // this will hold the entries
+	 // this will hold all of the entries
 	 ArrayList<Entry> entryList = new ArrayList<Entry>();
 	 
+	 ArrayList<String> entriesIDs = new ArrayList<String>();
 	 ArrayList<String> dates = new ArrayList<String>();
 	 ArrayList<String> startTimes = new ArrayList<String>();
 	 ArrayList<String> stopTimes = new ArrayList<String>();
@@ -55,7 +89,11 @@ public class EffortEditorController {
 	 ArrayList<String> details = new ArrayList<String>();
 	 ArrayList<String> projectNames = new ArrayList<String>();
 	 
+	 // holds the toStrings() of entries that should be displayed in the entry combo box
 	 ObservableList<String> entriesList = FXCollections.observableArrayList();
+	 
+	 // boolean used to track if a change to an entry has happened. initially false.
+	 boolean entryChanged = false;
 	 
 	
 	//	DATABASE TOOLS
@@ -63,63 +101,51 @@ public class EffortEditorController {
 	private PreparedStatement prepare;
 	private ResultSet result;
 	
+	// text
 	@FXML
     private Text attributesChangesSaved;
-	
     @FXML
     private Text effortLogEntryText;
+    @FXML
+    private Text otherDetailText;
 
-    @FXML
-    private ComboBox<String> categories;
-
-    @FXML
-    private ComboBox<String> entries;
-
-    @FXML
-    private ComboBox<String> lifecycles;
-
-    @FXML
-    private ComboBox<String> plans;
-    
-    @FXML
-    private ComboBox<String> deliverables;
-    
-    @FXML
-    private ComboBox<String> interruptions;
-    
-    @FXML
-    private ComboBox<String> defects;
-    
-    @FXML
-    private ComboBox<String> others;
-
+    // all of the combo boxes
     @FXML
     private ComboBox<String> projects;
+    @FXML
+    private ComboBox<String> categories;
+    @FXML
+    private ComboBox<String> entries;
+    @FXML
+    private ComboBox<String> lifecycles;
+    @FXML
+    private ComboBox<String> detailBox;
+    
 
+    // all of the buttons
     @FXML
     private Button splitBtn;
-
     @FXML
     private Button toLogBtn;
-
     @FXML
     private Button updateBtn;
-    
     @FXML
     private Button deleteBtn;
-    
     @FXML
     private Button clearBtn;
     
+    // the text fields
     @FXML
     private TextField startTimeField;
-    
     @FXML
     private TextField stopTimeField;
-    
     @FXML
     private TextField dateField;
+    @FXML
+    private TextField otherField;
     
+    // pop up box to warn users about bad input
+    Alert alert;
     
     //-----------------------------------------------------------------------------------
     // project and entry selection combo boxes
@@ -133,14 +159,13 @@ public class EffortEditorController {
     	System.out.println("A Project was selected");
     	
     	// populate the entry list with the matching entries
-    	entrylistmaker(entriesList, projectNames, dates, startTimes, stopTimes, lifeCycleSteps, categorys, details); 
+    	entrylistmaker();
     	entries.setItems(entriesList);	
     	
     	
     	// enable the next controls to access
     	entries.setDisable(false);
         clearBtn.setDisable(false);
-        categories.setDisable(false);
     }
     
     // once an entry is selected the rest of the options for changing entries should be enabled.
@@ -149,13 +174,38 @@ public class EffortEditorController {
     	// test message
     	System.out.println("An Entry was selected");
     	
-    	// enable the next controls
+    	startTimeField.setText("something");
+        stopTimeField.setText("goes");
+        dateField.setText("here");
+        
+        // find the selected entry from the entry list
+        Entry selectedEntry = new Entry();
+		for(int i = 0; i < entryList.size(); i++) {
+    		if(entryList.get(i).toString().equals(entries.getValue())) {
+    			selectedEntry = entryList.get(i);
+    		}
+		}
+
+    	
+    	// enable the next controls and set intial values from selected Entry
+		 lifecycles.setDisable(false);
+	     lifecycles.setValue(selectedEntry.lifeCycleStep);
+	        
         categories.setDisable(false);
-        lifecycles.setDisable(false);
-        plans.setDisable(false);
+        categories.setValue(selectedEntry.category);
+        
+        detailBox.setDisable(false);
+        detailBox.setValue(selectedEntry.detail);
+        
         stopTimeField.setDisable(false);
+        stopTimeField.setText(selectedEntry.stopTime);
+        
         startTimeField.setDisable(false);
+        startTimeField.setText(selectedEntry.startTime);
+        
         dateField.setDisable(false);
+        dateField.setText(selectedEntry.date);
+        
         splitBtn.setDisable(false);
         toLogBtn.setDisable(false);
         updateBtn.setDisable(false);
@@ -171,6 +221,7 @@ public class EffortEditorController {
     // update the entryChanged boolean and the text of the attributesChangesSaved text
     @FXML
     void dateChanged(ActionEvent event) {
+    	entryChanged = true;
     	System.out.println("Date change Detected");
     }
     
@@ -178,6 +229,7 @@ public class EffortEditorController {
     // update the entryChanged boolean and the text of the attributesChangesSaved text
     @FXML
     void StartTimeChanged(ActionEvent event) {
+    	entryChanged = true;
     	System.out.println("Start Time change Detected");
     }
     
@@ -185,6 +237,7 @@ public class EffortEditorController {
     // update the entryChanged boolean and the text of the attributesChangesSaved text
     @FXML
     void stopTimeChanged(ActionEvent event) {
+    	entryChanged = true;
     	System.out.println("Stop Time change Detected");
     }
     
@@ -192,84 +245,38 @@ public class EffortEditorController {
     // of the attributesChangesSaved text. If time add logic to determine if combo was actually changed
     @FXML
     void categoryChanged(ActionEvent event) {
-    	System.out.println("Category change Detected");
-    	System.out.println("Selected Category is: " + categories.getValue());
-    	
-    // sets the enables and visibilities of the context dependent combo box 
-    	if(categories.getValue().equals("Plans")) {
-    		System.out.println("PLans");
-    		plans.setDisable(false);
-    		plans.setVisible(true);
-    		
-    		interruptions.setDisable(true);
-	        deliverables.setDisable(true);
-	        others.setDisable(true);
-	        defects.setDisable(true);
-	        
-	        interruptions.setVisible(false);
-	        deliverables.setVisible(false);
-	        others.setVisible(false);
-	        defects.setVisible(false);
-    	}
-    	else if(categories.getValue().equals("Interruptions")) {
-    		System.out.println("Interruptions");
-    		interruptions.setDisable(false);
-    		interruptions.setVisible(true);
-    		
-    		plans.setDisable(true);
-	        deliverables.setDisable(true);
-	        others.setDisable(true);
-	        defects.setDisable(true);
-	        
-	        plans.setVisible(false);
-	        deliverables.setVisible(false);
-	        others.setVisible(false);
-	        defects.setVisible(false);
-    	}
-    	else if(categories.getValue().equals("Deliverables")) {
-    		System.out.println("deliverables");
-    		deliverables.setDisable(false);
-    		deliverables.setVisible(true);
-    		
-    		plans.setDisable(true);
-    		interruptions.setDisable(true);
-	        others.setDisable(true);
-	        defects.setDisable(true);
-	        
-	        plans.setVisible(false);
-	        interruptions.setVisible(false);
-	        others.setVisible(false);
-	        defects.setVisible(false);
-    	}
-    	else if(categories.getValue().equals("Defects")) {
-    		System.out.println("Defects");
-    		defects.setDisable(false);
-    		defects.setVisible(true);
-    		
-    		plans.setDisable(true);
-    		interruptions.setDisable(true);
-	        others.setDisable(true);
-	        deliverables.setDisable(true);
-	        
-	        plans.setVisible(false);
-	        interruptions.setVisible(false);
-	        others.setVisible(false);
-	        deliverables.setVisible(false);
-    	}
-    	else if(categories.getValue().equals("Others")) {
-    		System.out.println("Others");
-    		others.setDisable(false);
-    		others.setVisible(true);
-    		
-    		plans.setDisable(true);
-    		interruptions.setDisable(true);
-    		defects.setDisable(true);
-	        deliverables.setDisable(true);
-	        
-	        plans.setVisible(false);
-	        interruptions.setVisible(false);
-	        defects.setVisible(false);
-	        deliverables.setVisible(false);
+    	entryChanged = true;
+    	if(categories.getValue() != null) {
+    		// sets the enables and visibilities of the context dependent combo box 
+	    	if(categories.getValue().equals("Plans")) {
+	    		System.out.println("Plans");
+	    		setCBox(detailBox, "plans");
+	
+	    	}
+	    	else if(categories.getValue().equals("Interruptions")) {
+	    		System.out.println("Interruptions");
+	    		setCBox(detailBox, "interruptions");
+	
+	    	}
+	    	else if(categories.getValue().equals("Deliverables")) {
+	    		System.out.println("deliverables");
+	    		setCBox(detailBox, "deliverables");
+	
+	    	}
+	    	else if(categories.getValue().equals("Defects")) {
+	    		System.out.println("Defects");
+	    		setCBox(detailBox, "defects");
+	    	}
+	    	else if(categories.getValue().equals("Others")) {
+	    		System.out.println("Others");
+	    		otherField.setDisable(false);
+	    	    otherField.setVisible(true);
+	    	    otherDetailText.setVisible(true);
+	    		
+	    	    detailBox.setValue(null);
+	    	    detailBox.setDisable(true);
+	   
+	    	}
     	}
     }
     
@@ -277,34 +284,16 @@ public class EffortEditorController {
     //of the attributesChangesSaved text. If time add logic to determine if combo was actually changed
     @FXML
     void lifeCycleChanged(ActionEvent event) {
+    	entryChanged = true;
     	System.out.println("The Entry's Life Cycle Step was changed");
     }
     
     // if the plan/deliverable/interruption/other combo box is changed update entryChanged boolean and and the text 
     //of the attributesChangesSaved text. If time add logic to determine if combo was actually changed
     @FXML
-    void planChanged(ActionEvent event) {
-    	System.out.println("The Entry's Plan was changed");
-    }
-    
-    @FXML
-    void deliverableChanged(ActionEvent event) {
-    	System.out.println("The Entry's Deliverable was changed");
-    }
-    
-    @FXML
-    void interruptionChanged(ActionEvent event) {
-    	System.out.println("The Entry's Interruption was changed");
-    }
-    
-    @FXML
-    void defectChanged(ActionEvent event) {
-    	System.out.println("The Entry's Defect was changed");
-    }
-    
-    @FXML
-    void otherChanged(ActionEvent event) {
-    	System.out.println("The Entry's Other was changed");
+    void detailsChanged(ActionEvent event) {
+    	entryChanged = true;
+    	System.out.println("The Entry's detail was changed");
     }
     
     //-----------------------------------------------------------------------------------
@@ -315,13 +304,29 @@ public class EffortEditorController {
     @FXML
     void clearLogBtn(ActionEvent event) {
     	System.out.println("Clear log button was pressed");
-    }
+    	deleteAllEntries(projects.getValue());
+    	entrylistmaker();
+    	entries.setItems(entriesList);	
+    	return;
+	}
+    
     
     // Will delete the currently selected entry. Should display a message if deleted or
     // if no entry is selected
     @FXML
     void deleteEntryBtn(ActionEvent event) {
     	System.out.println("Delete log button was pressed");
+    	for(int i = 0; i < entryList.size(); i++) {
+    		if(entryList.get(i).toString().equals(entries.getValue())) {
+    			// delete the matching entry
+    			System.out.println("Found matching Entry");
+    			deleteEntry(entryList.get(i), "definitions");
+    			// repopulate the entry list with the new entries
+    	    	entrylistmaker();
+    	    	entries.setItems(entriesList);	
+    	    	return;
+    		}
+    	}
     }
     
     // Changes the scene to the Effort Log screen.
@@ -343,6 +348,68 @@ public class EffortEditorController {
     @FXML
     void updateEntryBtn(ActionEvent event) {
     	System.out.println("The Update Entry Button was pressed");
+    	// check if the input of the text fields is valid
+    	boolean validDate = isValidDate(dateField.getText());
+    	boolean validStartTime = isValidTime(startTimeField.getText());
+    	boolean validStopTime = isValidTime(stopTimeField.getText());
+    	
+    	// if all three are valid then update the entry
+    	if(validDate && validStartTime && validStopTime) {
+    		
+    		// temp Entry that we can modify and insert back into the list
+    		Entry tempEntry = new Entry();
+    		
+    		// delete the orginal entry and initialize the temp entry
+    		for(int i = 0; i < entryList.size(); i++) {
+        		if(entryList.get(i).toString().equals(entries.getValue())) {
+        			// delete the matching entry
+        			System.out.println("Found matching Entry");
+        			tempEntry = entryList.get(i);
+        			deleteEntry(entryList.get(i), "definitions");
+        		}
+        	}
+    		
+    		// these were already checked
+    		tempEntry.date = dateField.getText();
+    		tempEntry.startTime = startTimeField.getText();
+    		tempEntry.stopTime = stopTimeField.getText();	
+    		
+    		if(lifecycles.getValue() != null)
+    			tempEntry.lifeCycleStep = lifecycles.getValue();
+    		if(categories.getValue() != null) {
+	    		tempEntry.category = categories.getValue();
+	    		if(categories.getValue().equals("Others")) {
+	    			if(otherField.getText() != null) {
+	    			tempEntry.detail = otherField.getText();
+	    			}
+	    			else {
+	    				System.out.println("text inputs are NOT valid");
+	    	    		alert = new Alert(AlertType.ERROR);
+	    				alert.setTitle("Error Message");
+	    				alert.setHeaderText(null);
+	    				alert.setContentText("Make The other details text is not blank");
+	    				alert.show();
+	    			}
+	    		}
+	    		else if(detailBox.getValue() != null);
+	    			tempEntry.detail = detailBox.getValue();
+	        	}   	
+    		
+    		// insert the new entry into the database
+    		insertEntry(tempEntry);
+    		
+    		// fix the menus
+    		entrylistmaker();
+	    	entries.setItems(entriesList);	
+    	}
+    	else {
+    		System.out.println("text inputs are NOT valid");
+    		alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error Message");
+			alert.setHeaderText(null);
+			alert.setContentText("Make sure only valid times and dates are entered");
+			alert.show();
+    	}
     }
 
     
@@ -357,25 +424,17 @@ public class EffortEditorController {
         assert effortLogEntryText != null : "fx:id=\"effortLogEntryText\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert entries != null : "fx:id=\"entries\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert lifecycles != null : "fx:id=\"lifecycles\" was not injected: check your FXML file 'EffortEditor.fxml'.";
-        assert plans != null : "fx:id=\"plans\" was not injected: check your FXML file 'EffortEditor.fxml'.";
+        assert detailBox != null : "fx:id=\"plans\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert projects != null : "fx:id=\"projects\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert splitBtn != null : "fx:id=\"splitBtn\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert toLogBtn != null : "fx:id=\"toLogBtn\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         assert updateBtn != null : "fx:id=\"updateBtn\" was not injected: check your FXML file 'EffortEditor.fxml'.";
         
+        // sets initial enables and visibilities 
         entries.setDisable(true);
         categories.setDisable(true);
         lifecycles.setDisable(true);
-        plans.setDisable(true);
-        interruptions.setDisable(true);
-        deliverables.setDisable(true);
-        others.setDisable(true);
-        defects.setDisable(true);
-        
-        interruptions.setVisible(false);
-        deliverables.setVisible(false);
-        others.setVisible(false);
-        defects.setVisible(false);
+        detailBox.setDisable(true);
         
         stopTimeField.setDisable(true);
         startTimeField.setDisable(true);
@@ -386,33 +445,25 @@ public class EffortEditorController {
         deleteBtn.setDisable(true);
         clearBtn.setDisable(true);
         
-    	setCBox(categories);
-    	setCBox(projects);
-    	setCBox(lifecycles);
-    	setCBox(plans);
-    	setCBox(deliverables);
-    	setCBox(interruptions);
-    	setCBox(defects);
-    	setCBox(others);
-    	
-    	setArrayList(projectNames,"projectName","entries");
-    	setArrayList(dates,"date","entries");
-    	setArrayList(startTimes,"startTime","entries");
-    	setArrayList(stopTimes,"stopTime","entries");
-    	setArrayList(lifeCycleSteps,"lifeCycleStep","entries");
-    	setArrayList(categorys,"category","entries");
-    	setArrayList(details,"detail","entries");
+        otherField.setDisable(true);
+        otherField.setVisible(false);
+        otherDetailText.setVisible(false);
+        
+        // sets the combo box values based on values in SQL
+    	setCBox(categories, "categories");
+    	setCBox(projects, "projects");
+    	setCBox(lifecycles, "lifecycles");
 
     }
     
-    
+    // function written by Alma Babbit
     //-----------------------------------------------------------------------------------
     // function that populates a comboBox with data from SQL database.
     //-----------------------------------------------------------------------------------
     // any table and combo box must have the same name and the SQL table must have a column 
     // called name
-	void setCBox(ComboBox<String> cb) {
-		String sql = "SELECT name FROM " + cb.getId();
+	void setCBox(ComboBox<String> cb, String table_name) {
+		String sql = "SELECT name FROM " + table_name;
 		connect = database.connectDb("definitions");
 		try {
 			ObservableList<String> array = FXCollections.observableArrayList();
@@ -440,19 +491,20 @@ public class EffortEditorController {
 		    }
 		}
     }
-	 //-----------------------------------------------------------------------------------
-    // function that populates an arraylist with values from the SQL table column name
+	//-----------------------------------------------------------------------------------
+    // function that populates an array list with values from the SQL table column name
     //-----------------------------------------------------------------------------------
-	// 1. date ( time - time) lifeCycleStep; Effort Category: Details
+	// toString format = 1. date ( time - time) lifeCycleStep; Effort Category: Details
 	
-	void setArrayList(ArrayList<String> cb, String name, String table) {
+	void setArrayList(ArrayList<String> list, String name, String table) {
+		// make sure array list is empty
+		list.clear();
 		String sql = "SELECT "+ name +" FROM " + table;
 		connect = database.connectDb("definitions");
 		try {
 			result = connect.createStatement().executeQuery(sql);
 			while(result.next()) {	
-				cb.add(new String(result.getString(1)));
-				System.out.println(result.getString(1));
+				list.add(new String(result.getString(1)));
 			}	
 		}catch(Exception e) {e.printStackTrace();}
 		finally{
@@ -474,27 +526,139 @@ public class EffortEditorController {
 		}
 		
     }
-	void entrylistmaker(ObservableList<String> entrys, ArrayList<String> projectNames, ArrayList<String> date, ArrayList<String> startTimes,
-			ArrayList<String> stopTimes, ArrayList<String> lifeCycleSteps, ArrayList<String> categories, ArrayList<String> details) {
-		entrys.clear();
-		for(int i = 0; i < date.size(); i++) {
+	
+	void entrylistmaker() {
+		entriesList.clear();
+		
+		// initializes the array lists to have all info for entry construction
+    	setArrayList(entriesIDs,"entriesID","entries");
+    	setArrayList(projectNames,"projectName","entries");
+    	setArrayList(dates,"date","entries");
+    	setArrayList(startTimes,"startTime","entries");
+    	setArrayList(stopTimes,"stopTime","entries");
+    	setArrayList(lifeCycleSteps,"lifeCycleStep","entries");
+    	setArrayList(categorys,"category","entries");
+    	setArrayList(details,"detail","entries");
+    	
+		for(int i = 0; i < dates.size(); i++) {
 			Entry entry = new Entry();
+			entry.entriesID = Integer.valueOf(entriesIDs.get(i));
 			entry.projectName = projectNames.get(i);
-			entry.date = date.get(i);
+			entry.date = dates.get(i);
 			entry.startTime = startTimes.get(i);
 			entry.stopTime = stopTimes.get(i);		
 			entry.lifeCycleStep = lifeCycleSteps.get(i);
-			entry.category = categories.get(i);
+			entry.category = categorys.get(i);
 			entry.detail = details.get(i);
 			entryList.add(entry);
 			if(entry.projectName.equals(projects.getValue())) {
-				entrys.add(entry.toString());
+				entriesList.add(entry.toString());
 			}
-			System.out.println(entry.toString());
 		}
+		// updates the message under the project combo box to show the number of entries in a project
+		effortLogEntryText.setText(entriesList.size() + " effort log entries for this project");
 	}
-	
-	
-	
+		//-----------------------------------------------------------------------------------
+		// function that deletes an entry from the SQL database.
+	    //-----------------------------------------------------------------------------------
+	    // Takes in an entry object that is in the entry list.
+		// I don't know why this mess works but it does
+		
+		void deleteEntry(Entry entryToDelete, String name) {
+			connect = database.connectDb("definitions");
+		      String query = "delete from entries where entriesID = ?";
+		      PreparedStatement preparedStmt = null;
+			try {
+				preparedStmt = connect.prepareStatement(query);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      try {
+				preparedStmt.setInt(1, entryToDelete.entriesID);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				preparedStmt.execute();
+			}catch(Exception e) {e.printStackTrace();}
+	    }
+		
+		//-----------------------------------------------------------------------------------
+		// function that inserts an entry to the SQL database.
+	    //-----------------------------------------------------------------------------------
+	    // Takes in an entry object that is in the entry list.
+		// I don't know why this mess works but it does
+		void insertEntry(Entry entryToInsert) {
+			connect = database.connectDb("definitions");
+		      String query = " insert into entries (entriesID, projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
+		    	        + " values (?, ?, ?, ?, ?, ?, ?, ?)";
+		      PreparedStatement preparedStmt = null;
+			try {
+				preparedStmt = connect.prepareStatement(query);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      try {
+				preparedStmt.setInt		(1, entryToInsert.entriesID);
+				preparedStmt.setString	(2, entryToInsert.projectName);
+				
+	            java.util.Date parsedDate = dateFormat.parse(entryToInsert.date);
+	            Date sqlDate = new Date(parsedDate.getTime());
+			    preparedStmt.setDate  	(3, sqlDate);
+			    
+	            java.util.Date parsedTimeStart = timeFormat.parse(entryToInsert.startTime);
+	            Time sqlTimeStart = new Time(parsedTimeStart.getTime());
+			    preparedStmt.setTime	(4, sqlTimeStart);
+			    
+			    java.util.Date parsedTimeStop = timeFormat.parse(entryToInsert.stopTime);
+	            Time sqlTimeStop = new Time(parsedTimeStop.getTime());
+			    preparedStmt.setTime	(5, sqlTimeStop);
+			    
+			    preparedStmt.setString 	(6, entryToInsert.lifeCycleStep);
+			    preparedStmt.setString 	(7, entryToInsert.category);
+			    preparedStmt.setString 	(8, entryToInsert.detail);
+			} catch (SQLException | ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				preparedStmt.execute();
+			}catch(Exception e) {e.printStackTrace();}
+	    }
+		
+		//-----------------------------------------------------------------------------------
+		// function that deletes all the entries for a project
+	    //-----------------------------------------------------------------------------------
+	    // Takes in an entry object that is in the entry list.
+		// SQL notation:   DELETE FROM `definitions`.`entries` WHERE (`projectName` = '?');
+		void deleteAllEntries(String projectname) {
+			String sql = "DELETE FROM 'defintions'.'entries' WHERE (`projectName` = '" + projectname +"');";
+			connect = database.connectDb("definitions");
+			try {
+				result = connect.createStatement().executeQuery(sql);
+			}catch(Exception e) {e.printStackTrace();}
+			finally{
+				if (result != null) {
+			        try {
+			            result.close();
+			        } catch (SQLException e) {e.addSuppressed(null);}
+			    }
+			    if (prepare != null) {
+			        try {
+			            prepare.close();
+			        } catch (SQLException e) { e.addSuppressed(null);}
+			    }
+			    if (connect != null) {
+			        try {
+			            connect.close();
+			        } catch (SQLException e) { e.addSuppressed(null);}
+			    }
+			}
+	    }
 
 }
