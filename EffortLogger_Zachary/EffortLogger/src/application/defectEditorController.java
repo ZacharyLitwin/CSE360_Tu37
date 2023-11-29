@@ -418,11 +418,23 @@ public class defectEditorController extends LoginController{
 				for(int i = 0; i < defectList.size(); i++) {
 					if(defectList.get(i).toString().equals(loadDefects.getValue())) {
 						System.out.println("Found matching Defect");
+						createAlert("Confirmation message", "Defect was deleted");
+						 // reset some items of the GUI
+					    loadDefects.setValue(null);
+						stepsInjectedComboBox.setValue(null);
+						stepsRemovedComboBox.setValue(null);
+						defectCategoryComboBox.setValue(null);
+						defectDetails.setText(null);
+						defectSymptoms.setText(null);
+						
 						deleteDefect(defectList.get(i));
+						
+						// update the defects list
+						defectlistmaker();
+						loadDefects.setItems(defectDisplayList);
 						break;
 					}
 				}
-				createAlert("Error message", "Entry Doesn't Exist");
 			}
 			else {
 				createAlert("Error message", "Select a defect entry");

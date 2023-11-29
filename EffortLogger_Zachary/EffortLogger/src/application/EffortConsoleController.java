@@ -331,7 +331,7 @@ public class EffortConsoleController extends LoginController {
 	    void toLogs(ActionEvent event) {
 	    	try {
 	    		logsBtn.getScene().getWindow().hide();
-				Parent root = FXMLLoader.load(getClass().getResource("ProjectView.fxml"));
+				Parent root = FXMLLoader.load(getClass().getResource("logsView.fxml"));
 				Stage stage = new Stage();
 				Scene scene = new Scene(root);
 				
