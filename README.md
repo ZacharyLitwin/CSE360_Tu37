@@ -3,10 +3,7 @@ for CSE360 project
 
 EffortLogger_Alma: it is the zip file of the same name that Alma uploaded to the discord on 11/26
 
-EffortLogger_Zachary: Partially adds the Effort Editor screen. The starting screen was changed to be the Effort editor screen for testing. Finished javaFX with Scene Builder. I changed how the entries are defined in SQL.
-They now have data DATE, startTime TIME, stopTime TIME, lifeCycles, Categories, and details. This is shown in the entriesSQL.png. There are now functions that allow for the insertion and deletions of entries in mySQL.
-Updated the effort log screen to more closely match the one in efforlogger v1, You can now create effort logs in the effort log screen.
-TODO- The life cycle steps are still not project dependent and there is no login info added to the entries or the entry editor
+EffortLogger_Zachary: Checking the employee id is done by adding an int called empID to the effort_entries and defects tables in the empdb
 
 EffortLogger_Karryl: Please explain your additions to effortlogger here
 
