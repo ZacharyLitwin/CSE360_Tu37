@@ -3,7 +3,7 @@ for CSE360 project
 
 EffortLogger_Alma: it is the zip file of the same name that Alma uploaded to the discord on 11/26
 
-EffortLogger_Zachary: Checking the employee id is done by adding an int called empID to the effort_entries and defects tables in the empdb
+EffortLogger_Zachary: Effort and defect entries are now login dependent and the life cycle combo boxes are now project dependent. Currently Updating and deleting defects is broken and the split effort entry button does nothing. Working on fixing that and adding the logs page.
 
 EffortLogger_Karryl: Please explain your additions to effortlogger here
 
