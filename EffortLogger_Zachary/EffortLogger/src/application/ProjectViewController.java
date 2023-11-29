@@ -1,27 +1,19 @@
 package application;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.util.Callback;
 
@@ -33,9 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class ProjectViewController implements Initializable {
 
@@ -72,6 +61,7 @@ public class ProjectViewController implements Initializable {
 	private PreparedStatement prepare;
 	private ResultSet result;
 
+	//Helpful variable for data manipulation of the table base
 	private ObservableList<Project> projects = FXCollections.observableArrayList();
 	private String[] allLifeCycles = null;
 
@@ -84,11 +74,11 @@ public class ProjectViewController implements Initializable {
 	private String projectName = "";
 	
 	private String lifeCycle = "";
-	
-	public static String[] cycles = null;
+		
 	
     @FXML
     private void getRow(MouseEvent e) {
+    	project = table.getSelectionModel().getSelectedItem();			
     	//When mouse clicked on a row in name column
     	name.setCellFactory(TextFieldTableCell.<Project>forTableColumn());
         name.setOnEditCommit(event ->{
@@ -112,6 +102,7 @@ public class ProjectViewController implements Initializable {
             projectName = project.getName();
             lifeCycle = project.getUpdateCycle();
             goAdd = true;
+            goDelete = true;
             
             
         });       
@@ -162,6 +153,19 @@ public class ProjectViewController implements Initializable {
             selectionModel.clearSelection(selectedIndices[i].intValue());
             table.getItems().remove(selectedIndices[i].intValue());
         }
+        
+        connect = database.connectDb("definitions");
+    	String sql = "DELETE FROM projects WHERE name  = '"+project.getName()+"'";
+    	String sql2 = "DELETE FROM entries WHERE projectName = '"+project.getName()+"'";
+        try {
+            prepare = connect.prepareStatement(sql);
+            prepare.executeUpdate();
+            prepare = connect.prepareStatement(sql2);
+            prepare.executeUpdate();
+        	System.out.println(sql);
+        	System.out.println(sql2);
+
+        }catch(Exception e) {e.printStackTrace();}
     }
 
     private void getData() {
@@ -177,7 +181,7 @@ public class ProjectViewController implements Initializable {
 	   	}catch(Exception e) {e.printStackTrace();}    	
     }
 
-	void setAllLifeCycles() {
+	void setAllLifeCyclesCBox() {
     	String sql = "SELECT * FROM lifecycles";
 		connect = database.connectDb("definitions");
     	try {
@@ -212,23 +216,18 @@ public class ProjectViewController implements Initializable {
                         Button addBtn = new Button("Add");
                      
                         deleteBtn.setOnMouseClicked((MouseEvent event) -> {
-             
-//                            try {
-//                                project = projectsTable.getSelectionModel().getSelectedItem();
-//                                query = "DELETE FROM `project` WHERE id  ="+project.getId();
-//                                connection = DbConnect.getConnect();
-//                                preparedStatement = connection.prepareStatement(query);
-//                                preparedStatement.execute();
-//                                refreshTable();
-//                                
-//                            } catch (SQLException ex) {
-//                                Logger.getLogger(TableViewController.class.getName()).log(Level.SEVERE, null, ex);
-//                            }
-                            
-                           
-
-                          
-
+                        	connect = database.connectDb("definitions");
+                        	String sql = "DELETE FROM entries WHERE projectName  = '" + projectName + "' AND lifeCycle = '" + lifeCycle + "'";
+	                        if(goDelete) {    
+                        		try {
+	                                prepare = connect.prepareStatement(sql);
+	                                prepare.executeUpdate();
+	             
+	                            }catch(Exception e) {e.printStackTrace();}
+                	            clearAllCBox();
+                                setSelectedProjectCycles();
+	                        }
+	                        goDelete = false;
                         });
                         addBtn.setOnMouseClicked((MouseEvent event) -> {
                         	connect = database.connectDb("definitions");
@@ -239,28 +238,11 @@ public class ProjectViewController implements Initializable {
                 	            	prepare.setString(1, projectName);
                 	            	prepare.setString(2, lifeCycle);
                 	            	prepare.executeUpdate();
-                	            	
-                	            	String sql2 = "SELECT * FROM entries WHERE projectName = ?";
-                            		List<String> list = new ArrayList<String>();
-                            		prepare = connect.prepareStatement(sql2);
-                            		prepare.setString(1, projectName);
-                            		result = prepare.executeQuery();
-                            		while(result.next()) {
-                            			list.add(new String(result.getString(3)));
-                        			}
-                            		project.setProjectCycles(new String[list.size()]) ;
-                        			for (int i = 0; i < list.size(); i++) {
-                        		        project.getProjectCycles()[i] = list.get(i);
-                        		        System.out.println(project.getProjectCycles()[i]);
-                        			}
                 	            }catch(Exception ev) {ev.printStackTrace();}
+                	            clearAllCBox();
+                            	setSelectedProjectCycles();
                         	} 
-                        	goAdd = false;
-                      
-                            
-
-                           
-
+                        	goAdd = false;    
                         });
 
                         HBox managebtn = new HBox(addBtn, deleteBtn);
@@ -278,69 +260,60 @@ public class ProjectViewController implements Initializable {
         };
          addDelete.setCellFactory(cellFactory);
 	}
-	private String[] getProjectCyclesFromRow() {
-		table.getSelectionModel().setCellSelectionEnabled(true);
-		ObservableList<Project> selectedCells = table.getSelectionModel().getSelectedItems();
-		return selectedCells.get(0).getProjectCycles();
-
-	}
-	private void setProjectCycles() {
+	
+	private void setSelectedProjectCycles() {
+		String selectedProjectName = "";
+		ObservableList<String> selectedCycles = FXCollections.observableArrayList();
 		
-		Callback<TableColumn<Project, String>, TableCell<Project, String>> cellFactory = (TableColumn<Project, String> param) -> {
-	        // make cell containing buttons
-	        final TableCell<Project, String> cell = new TableCell<Project, String>() {
-	            @Override
-	            public void updateItem(String item, boolean empty) {
-	                super.updateItem(item, empty);
-	                //that cell created only on non-empty rows
-	                if (empty) {
-	                    setGraphic(null);
-	                    setText(null);
-	                } else {
-//	                	cycles = getProjectCyclesFromRow();
-	                    Button addBtn = new Button("view project cycles");
-	                    addBtn.setOnMouseClicked((MouseEvent event) -> {
-	                    	try {
-	                			Parent root = FXMLLoader.load(getClass().getResource("ProjectCycles.fxml"));
-	                			Stage stage = new Stage();
-	                			Scene scene = new Scene(root);
-	                			
-	                			stage.setScene(scene);
-	                			stage.show();
-	                    	}catch(Exception e) {e.printStackTrace();}
-	                        
-	
-	                       
-	
-	                    });
-	                    HBox managebtn = new HBox(addBtn);
-	                    managebtn.setStyle("-fx-alignment:center");
-	                    setGraphic(managebtn);
-	                    setText(null);
-	                }
-	            }
-            };
+		connect = database.connectDb("definitions");
+		String sql = "SELECT name FROM projects";
+		String sql2 = "SELECT lifeCycle FROM entries WHERE projectName = ?";
 
-            return cell;
-        };
-         lifeCycles.setCellFactory(cellFactory);
+		try {	    
+			prepare = connect.prepareStatement(sql);
+			result = prepare.executeQuery();
+			int i = 0;
+			while(result.next()) {
+				selectedProjectName = result.getString(1);
+				prepare = connect.prepareStatement(sql2);
+	        	prepare.setString(1, selectedProjectName);
+	        	ResultSet result2 = prepare.executeQuery();
+	        	while(result2.next()) {
+	        		projects.get(i).getProjectCycles().add(result2.getString(1));
+				}  
+	        	selectedCycles = projects.get(i).getProjectCycles();
+	        	projects.get(i).getProjectCyclesCBox().setItems(selectedCycles);
+	        	i++;
+			}  
+        }catch(Exception e) {e.printStackTrace();}
 	}
+	
+	private void clearAllCBox() {
+		for(int i = 0; i < projects.size(); i++) {
+			projects.get(i).getProjectCyclesCBox().getItems().clear();
+		}
+	}
+		
 	@Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-    	setAllLifeCycles();
+        getData();
+        
+    	setAllLifeCyclesCBox();
     	
         id.setCellValueFactory(new PropertyValueFactory<Project, Integer>("id"));
         
         name.setCellValueFactory(new PropertyValueFactory<Project, String>("name"));
-        
+             
         updateCycle.setCellValueFactory(new PropertyValueFactory<Project, String>("updateCycle"));
         updateCycle.setCellFactory(ComboBoxTableCell.<Project, String>forTableColumn());
-
-        setProjectCycles();
+        
+        lifeCycles.setCellValueFactory(new PropertyValueFactory<Project,String>("projectCyclesCBox"));
+        
+        setSelectedProjectCycles();
         
         setEditCol();
                            
-        getData();
+
         
         table.setItems(projects);
 

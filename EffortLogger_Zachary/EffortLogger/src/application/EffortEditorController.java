@@ -589,6 +589,7 @@ public class EffortEditorController {
 		    }
 		}
     }
+	
 	//-----------------------------------------------------------------------------------
     // function that populates an array list with values from the SQL table column name
     //-----------------------------------------------------------------------------------
@@ -622,7 +623,6 @@ public class EffortEditorController {
 		        } catch (SQLException e) { e.addSuppressed(null);}
 		    }
 		}
-		
     }
 	
 	void entrylistmaker() {

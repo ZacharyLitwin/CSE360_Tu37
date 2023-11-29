@@ -336,7 +336,7 @@ public class EffortConsoleController {
 	    void toDefectConsole(ActionEvent event) {
 	    	try {
 	    		defectConsoleBtn.getScene().getWindow().hide();
-				Parent root = FXMLLoader.load(getClass().getResource("ProjectView.fxml"));
+				Parent root = FXMLLoader.load(getClass().getResource("defectEditor.fxml"));
 				Stage stage = new Stage();
 				Scene scene = new Scene(root);
 				

@@ -2,23 +2,41 @@ package application;
 
 import java.awt.Button;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
+
 public class Project {
     private Integer id;
     private String name;
     private String updateCycle;
-    private String[] projectCycles;
+//    private ObservableList<String>
+    private ObservableList<String> projectCycles;
+    private ComboBox<String> projectCyclesCBox;
 
 	public Project(Integer id, String name) {
 		super();
 		this.id = id;
 		this.name = name;
+		this.projectCyclesCBox = new ComboBox<String>();
+		this.projectCycles = FXCollections.observableArrayList();
 	}
 
-	public String[] getProjectCycles() {
+
+
+	public ComboBox<String> getProjectCyclesCBox() {
+		return projectCyclesCBox;
+	}
+
+	public void setProjectCyclesCBox(ComboBox<String> projectCyclesCBox) {
+		this.projectCyclesCBox = projectCyclesCBox;
+	}
+
+	public ObservableList<String> getProjectCycles() {
 		return projectCycles;
 	}
 
-	public void setProjectCycles(String[] projectCycles) {
+	public void setProjectCycles(ObservableList<String> projectCycles) {
 		this.projectCycles = projectCycles;
 	}
 	

@@ -12,10 +12,10 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			Parent root = FXMLLoader.load(getClass().getResource("EffortEditor.fxml"));
+			Parent root = FXMLLoader.load(getClass().getResource("defectEditor.fxml"));
 			Scene scene = new Scene(root);
 			
-			primaryStage.setTitle("Something Professional");
+			primaryStage.setTitle("Carter is too cool for school");
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch(Exception e) {
@@ -27,4 +27,3 @@ public class Main extends Application {
 		launch(args);
 	}
 }
-

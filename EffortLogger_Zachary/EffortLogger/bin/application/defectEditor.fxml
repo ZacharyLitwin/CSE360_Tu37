@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.defectEditorController">
+   <children>
+      <VBox prefHeight="400.0" prefWidth="600.0">
+         <children>
+            <HBox prefHeight="32.0" prefWidth="600.0">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="29.0" prefWidth="601.0" style="-fx-border-color: black;" text="Defect Console">
+                     <font>
+                        <Font name="System Bold" size="22.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox prefHeight="54.0" prefWidth="576.0">
+               <children>
+                  <VBox prefHeight="54.0" prefWidth="300.0">
+                     <children>
+                        <Label style="-fx-label-padding: 5;" text="1. Select the Project">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="selectProject" nodeOrientation="LEFT_TO_RIGHT" onAction="#loadProjects" prefHeight="26.0" prefWidth="281.0">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </ComboBox>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="54.0" prefWidth="278.0">
+                     <children>
+                        <Label style="-fx-label-padding: 5;" text="2.a. Clear this Project's Defect Log.">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="clearDefect" mnemonicParsing="false" onAction="#clearDefects" prefHeight="24.0" prefWidth="195.0" text="Clear this Defect Log" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <VBox prefHeight="54.0" prefWidth="735.0">
+               <children>
+                  <Label style="-fx-label-padding: 5;" text="2.b. Select one of the following defects to make it the Current Defect or press &quot;Create a New Defect&quot;.">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <HBox prefHeight="22.0" prefWidth="600.0">
+                     <children>
+                        <ComboBox fx:id="loadDefects" nodeOrientation="LEFT_TO_RIGHT" onMouseClicked="#loadDefectsAction" prefHeight="26.0" prefWidth="281.0">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </ComboBox>
+                        <Label text="                        " />
+                        <Button fx:id="createDefect" mnemonicParsing="false" onAction="#createNewDefects" text="Create a  New Defect" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label text="3. Define or update the following Current Defect attributes:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <GridPane prefHeight="42.0" prefWidth="600.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Num Defect Name">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="defectStatus" text="Status: Closed" GridPane.columnIndex="1" />
+                        <TextField fx:id="defectDetails" GridPane.rowIndex="1" />
+                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <children>
+                              <Button fx:id="closeDefect" mnemonicParsing="false" onAction="#closeDefects" prefHeight="24.0" prefWidth="147.0" text="Close" />
+                              <Button fx:id="reopenDefect" mnemonicParsing="false" onAction="#reopenDefects" prefHeight="24.0" prefWidth="150.0" text="Reopen" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </GridPane>
+                  <Label alignment="TOP_CENTER" prefHeight="17.0" prefWidth="601.0" text="Defect Symptoms or Cause/Resolution" />
+                  <TextField fx:id="defectSymptoms" prefHeight="25.0" prefWidth="582.0" />
+                  <Label alignment="TOP_CENTER" prefHeight="11.0" prefWidth="615.0" text="To insert a new line, press &lt;ctrl + option + return&gt;">
+                     <font>
+                        <Font name="Times New Roman" size="10.0" />
+                     </font>
+                  </Label>
+                  <GridPane prefHeight="54.0" prefWidth="600.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label prefHeight="14.0" prefWidth="203.0" text="Step when injected" />
+                        <Label text="Step when removed" GridPane.columnIndex="1" />
+                        <Label text="Defect Category" GridPane.columnIndex="2" />
+                        <ComboBox fx:id="stepsInjectedComboBox" onMouseClicked="#loadStepsInjected" prefWidth="150.0" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="stepsRemovedComboBox" onMouseClicked="#loadStepsRemoved" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="defectCategoryComboBox" onMouseClicked="#loadDefects" prefWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                     </children>
+                  </GridPane>
+                  <HBox prefHeight="29.0" prefWidth="600.0">
+                     <children>
+                        <Label fx:id="attributeSaveStatus" prefHeight="14.0" prefWidth="260.0" text="These attributes have been saved" />
+                        <Label text="Fix: ">
+                           <font>
+                              <Font name="Times New Roman Bold" size="13.0" />
+                           </font>
+                        </Label>
+                        <ComboBox prefHeight="26.0" prefWidth="299.0" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <Label prefHeight="17.0" prefWidth="426.0" text="4. Press the &quot;Update the Current Defect&quot; to save the changes made above.">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <HBox alignment="TOP_CENTER" prefHeight="36.0" prefWidth="600.0">
+               <children>
+                  <Button fx:id="updateDefectbtn" mnemonicParsing="false" onAction="#updateCurrentDefect" prefHeight="25.0" prefWidth="160.0" text="Update the Current Defect" />
+                  <Button fx:id="deleteDefectbtn" mnemonicParsing="false" onAction="#deleteCurrentDefect" prefHeight="25.0" prefWidth="158.0" text="Delete the Current Defect" />
+                  <Button fx:id="homebtn" mnemonicParsing="false" onAction="#backHome" prefHeight="25.0" prefWidth="138.0" text="Proceed to Effort Log" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
