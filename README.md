@@ -3,7 +3,31 @@ for CSE360 project
 
 EffortLogger_Alma: it is the zip file of the same name that Alma uploaded to the discord on 11/26
 
-EffortLogger_Zachary: Effort and defect entries are now login dependent and the life cycle combo boxes are now project dependent. Currently Updating and deleting defects is broken and the split effort entry button does nothing. Working on fixing that and adding the logs page.
+EffortLogger_Zachary: The Login, Defintions, Effort Log console, Effort Editor, and Defect Editer screens are functional. 
+
+In the logs screen, the defects are working, the efforts are not.
+
+Here is how my database is designed. everything in defintions should be the same as Alma's
+The defects is defined the same as Ishan's but with empID added and the table moved into empdb schema
+
+schema definitions
+tables  - categories, defects, deliverable, interruptions, lifecycles, others, plans, projects
+		- contains an ID value(int) and a name value(VARCHAR(45))
+	- entries
+		- contains: entryID, projectName, Lifecycle step
+schema empdb
+tables  - login info:
+		- contain: empID(int), username(VARCHAR(45)), firstname(VARCHAR(45)), lastname(VARCHAR(45))
+			,empstatus(VARCHAR(45)), password(VARCHAR(45))
+	- effort_entries:
+		- contain: entriesID(int), ProjectName(VARCHAR(45)), date(DATE), startTime(TIME)), stopTime(TIME)
+			, lifeCycleStep(VARCHAR(45)), category(VARCHAR(45)), detail(VARCHAR(45)), empID(INT)
+	- defects:
+		- contain: defectsID(int), projectName(VARCHAR(50)), defectsName(VARCHAR(100)), defectsDef(VARCHAR(250))
+		, defectsInjected(VARCHAR(50)), defectsRemoved(VARCHAR(50)), defectCategory(VARCHAR(50)), fix(VARCHAR(50))
+		, status(VARCHAR(10)), empID(INT)
+
+  I will post screenshots of them into the discord.
 
 EffortLogger_Karryl: Please explain your additions to effortlogger here
 
