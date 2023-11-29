@@ -12,7 +12,10 @@ EffortLogger_Karryl: Please explain your additions to effortlogger here
 
 EffortLogger_Trevor: Please explain your additions to effortlogger here
 
-EffortLogger_Ishan: Please explain your additions to effortlogger here
+EffortLogger_Ishan: Screen starts from login screen. Instructions on how to create the defects table: create table defects (defectsID int, projectName varchar(50), defectsName varchar(100), defectsDef varchar(250), defectsInjected varchar(50), defectsRemoved varchar(50), defectCategory varchar(50), fix varchar(50), status varchar(10));
+allows to create, update, delete, open, reopen defect entrys. 
+Table to be created in "definitions" database. 
+Please update your password in the database.java file. 
 
 
 Prototypes from Submission 4:
