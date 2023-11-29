@@ -64,6 +64,10 @@ public class defectEditorController extends LoginController{
 		 ArrayList<String> statuses = new ArrayList<String>();
 		 
 		 ObservableList<String> defectDisplayList = FXCollections.observableArrayList();
+		 
+	// list to store the correct possible life cycle steps of a given project
+	    ObservableList<String> lifeCycleList = FXCollections.observableArrayList();
+	    
 	
 	//-----------------------------------------------------------------------------------
     // JavaFX compoent defintions & other variables
@@ -151,6 +155,9 @@ public class defectEditorController extends LoginController{
 				defectlistmaker();
 				loadDefects.setItems(defectDisplayList);
 				
+				// get the life cycle steps to match
+				setLifeCycleList(lifeCycleList, selectProject.getValue(), "definitions");
+				
 				// enable all controls a project was selected
 		    	createDefect.setDisable(false);
 				updateDefectbtn.setDisable(false);
@@ -158,6 +165,14 @@ public class defectEditorController extends LoginController{
 				closeDefect.setDisable(false);
 				reopenDefect.setDisable(false);
 				clearDefect.setDisable(false);
+				
+				// reset some items of the GUI
+			    loadDefects.setValue(null);
+				stepsInjectedComboBox.setValue(null);
+				stepsRemovedComboBox.setValue(null);
+				defectCategoryComboBox.setValue(null);
+				defectDetails.setText(null);
+				defectSymptoms.setText(null);
 				
 				loadDefects.setDisable(false);
 				stepsInjectedComboBox.setDisable(false);
@@ -272,6 +287,21 @@ public class defectEditorController extends LoginController{
 
 				// insert into database
 			    insertNewDefect(newDefect);
+			    
+			    // reset some items of the GUI
+			    loadDefects.setValue(null);
+				stepsInjectedComboBox.setValue(null);
+				stepsRemovedComboBox.setValue(null);
+				defectCategoryComboBox.setValue(null);
+				defectDetails.setText(null);
+				defectSymptoms.setText(null);
+				
+				// update the defects list
+				defectlistmaker();
+				loadDefects.setItems(defectDisplayList);
+				
+				createAlert("Confirmation message", "New Defect Created");
+			    
 			}
 		}
 		
@@ -302,13 +332,13 @@ public class defectEditorController extends LoginController{
 	// loads the life cycle steps into the step injected combo box
 		@FXML
 		void loadStepsInjected(MouseEvent event) {
-			setCBox(stepsInjectedComboBox, "lifecycles");
+	    	stepsInjectedComboBox.setItems(lifeCycleList);
 		}
 	
 	// loads the life cycle steps into the step removed combo box
 		@FXML
 		void loadStepsRemoved(MouseEvent event) {
-			setCBox(stepsRemovedComboBox, "lifecycles");
+	    	stepsRemovedComboBox.setItems(lifeCycleList);
 		}
 		
 	// loads the defect choices into defect category combo box
@@ -602,36 +632,71 @@ public class defectEditorController extends LoginController{
 	//-----------------------------------------------------------------------------------
     // function that takes in an defect name and status and updates the status
     //-----------------------------------------------------------------------------------
-	
-	
-	void setStatus(Defect defectToChange, String newStatus) {
-		connect = database.connectDb("empdb");
-		String sql = "UPDATE defects SET status = ? WHERE defectsName = ?";
-		try {
-			prepare = connect.prepareStatement(sql);
-			prepare.setString(1, newStatus);
-			prepare.setString(2, defectToChange.defectName);
-			prepare.executeUpdate();
-			
-		}catch(Exception e) {e.printStackTrace();}
-		finally{
-			if (result != null) {
-		        try {
-		            result.close();
-		        } catch (SQLException e) {e.addSuppressed(null);}
-		    }
-		    if (prepare != null) {
-		        try {
-		            prepare.close();
-		        } catch (SQLException e) { e.addSuppressed(null);}
-		    }
-		    if (connect != null) {
-		        try {
-		            connect.close();
-		        } catch (SQLException e) { e.addSuppressed(null);}
-		    }
+		
+		void setStatus(Defect defectToChange, String newStatus) {
+			connect = database.connectDb("empdb");
+			String sql = "UPDATE defects SET status = ? WHERE defectsName = ?";
+			try {
+				prepare = connect.prepareStatement(sql);
+				prepare.setString(1, newStatus);
+				prepare.setString(2, defectToChange.defectName);
+				prepare.executeUpdate();
+				
+			}catch(Exception e) {e.printStackTrace();}
+			finally{
+				if (result != null) {
+			        try {
+			            result.close();
+			        } catch (SQLException e) {e.addSuppressed(null);}
+			    }
+			    if (prepare != null) {
+			        try {
+			            prepare.close();
+			        } catch (SQLException e) { e.addSuppressed(null);}
+			    }
+			    if (connect != null) {
+			        try {
+			            connect.close();
+			        } catch (SQLException e) { e.addSuppressed(null);}
+			    }
+			}
 		}
-	}
+	
+	//-----------------------------------------------------------------------------------
+    // function that populates an the life cycle list 
+    //-----------------------------------------------------------------------------------
+  		
+  		void setLifeCycleList(ObservableList<String> list, String projectName, String table) {
+  			// make sure array list is empty
+  			list.clear();
+  			String sql = "SELECT lifeCycle FROM entries WHERE projectName = ?";
+  			connect = database.connectDb("definitions");
+  			try {
+  				prepare = connect.prepareStatement(sql);
+  				prepare.setString(1, projectName);
+				result = prepare.executeQuery();
+  				while(result.next()) {	
+  					list.add(new String(result.getString(1)));
+  				}	
+  			}catch(Exception e) {e.printStackTrace();}
+  			finally{
+  				if (result != null) {
+  			        try {
+  			            result.close();
+  			        } catch (SQLException e) {e.addSuppressed(null);}
+  			    }
+  			    if (prepare != null) {
+  			        try {
+  			            prepare.close();
+  			        } catch (SQLException e) { e.addSuppressed(null);}
+  			    }
+  			    if (connect != null) {
+  			        try {
+  			            connect.close();
+  			        } catch (SQLException e) { e.addSuppressed(null);}
+  			    }
+  			}
+	    }
 	
 	
 	

@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 import application.EffortEditorController.Entry;
 import javafx.collections.FXCollections;
@@ -95,6 +96,8 @@ public class EffortConsoleController extends LoginController {
 	 // pop up box to warn users about bad input
 	    Alert alert;
 
+	// list to store the correct possible life cycle steps of a given project
+	    ObservableList<String> lifeCycleList = FXCollections.observableArrayList();
     
 	//	DATABASE TOOLS
 		private Connection connect;
@@ -232,8 +235,11 @@ public class EffortConsoleController extends LoginController {
     // selection combo boxes action handlers
 	    @FXML
 	    void projectSelect(ActionEvent event) {
-	        setCBox(lifecycles, "lifecycles");
-	        lifecycles.setDisable(false);
+	    	if(projects.getValue() != null) {
+		    	setLifeCycleList(lifeCycleList, projects.getValue(), "definitions");
+		    	lifecycles.setItems(lifeCycleList);
+		        lifecycles.setDisable(false);
+	    	}
 	    }
 	    @FXML
 	    void lifeCycleSelect(ActionEvent event) {
@@ -416,7 +422,6 @@ public class EffortConsoleController extends LoginController {
 					preparedStmt.setString 	(7, entryToInsert.category);
 					preparedStmt.setString 	(8, entryToInsert.detail);
   			} catch (SQLException | ParseException e) {
-  				// TODO Auto-generated catch block
   				e.printStackTrace();
   			}
 
@@ -433,9 +438,45 @@ public class EffortConsoleController extends LoginController {
   				ObservableList<String> array = FXCollections.observableArrayList();
   				result = connect.createStatement().executeQuery(sql);
   				while(result.next()) {	
+  					// some check to see if 
   					array.add(new String(result.getString(1)));
   				}
   				cb.setItems(array);
+  			}catch(Exception e) {e.printStackTrace();}
+  			finally{
+  				if (result != null) {
+  			        try {
+  			            result.close();
+  			        } catch (SQLException e) {e.addSuppressed(null);}
+  			    }
+  			    if (prepare != null) {
+  			        try {
+  			            prepare.close();
+  			        } catch (SQLException e) { e.addSuppressed(null);}
+  			    }
+  			    if (connect != null) {
+  			        try {
+  			            connect.close();
+  			        } catch (SQLException e) { e.addSuppressed(null);}
+  			    }
+  			}
+  	    }
+	//-----------------------------------------------------------------------------------
+    // function that populates an the life cycle list 
+    //-----------------------------------------------------------------------------------
+  		
+  		void setLifeCycleList(ObservableList<String> list, String projectName, String table) {
+  			// make sure array list is empty
+  			list.clear();
+  			String sql = "SELECT lifeCycle FROM entries WHERE projectName = ?";
+  			connect = database.connectDb("definitions");
+  			try {
+  				prepare = connect.prepareStatement(sql);
+  				prepare.setString(1, projectName);
+				result = prepare.executeQuery();
+  				while(result.next()) {	
+  					list.add(new String(result.getString(1)));
+  				}	
   			}catch(Exception e) {e.printStackTrace();}
   			finally{
   				if (result != null) {

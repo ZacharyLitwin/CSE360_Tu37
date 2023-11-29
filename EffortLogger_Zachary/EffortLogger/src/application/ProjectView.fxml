@@ -36,6 +36,7 @@
                <children>
                   <Button mnemonicParsing="false" onAction="#insertData" text="Insert Data" />
                   <Button mnemonicParsing="false" onAction="#deleteData" text="Delete Data" />
+                  <Button fx:id="toeffortlog" mnemonicParsing="false" onAction="#toEffortLog" text="Effort Log" />
                </children>
             </HBox>
          </children>
