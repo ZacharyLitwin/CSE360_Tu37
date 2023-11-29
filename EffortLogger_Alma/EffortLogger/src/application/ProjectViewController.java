@@ -78,7 +78,7 @@ public class ProjectViewController implements Initializable {
 	
     @FXML
     private void getRow(MouseEvent e) {
-    			
+    	project = table.getSelectionModel().getSelectedItem();			
     	//When mouse clicked on a row in name column
     	name.setCellFactory(TextFieldTableCell.<Project>forTableColumn());
         name.setOnEditCommit(event ->{
