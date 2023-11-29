@@ -19,6 +19,12 @@ import java.sql.SQLException;
 import javafx.event.ActionEvent;
 
 public class LoginController {
+	
+	
+	// holds the employee ID of the person who is logged in
+	// used to check viewing permissions	
+	public static int currentLoginID = 0;
+	
 	@FXML
 	private TextField username;
 	@FXML
@@ -34,7 +40,7 @@ public class LoginController {
 	private ResultSet result;
 	
 	public void loginAdmin(ActionEvent event) {
-		String sql = "SELECT * FROM login_info WHERE username = ? and password = ?";
+		String sql = "SELECT empID FROM login_info WHERE username = ? and password = ?";
 		
 		connect = database.connectDb("empdb");
 		
@@ -53,7 +59,9 @@ public class LoginController {
 				alert.setContentText("Enter all blank fields");
 				alert.show();
 			}else {
-				if(result.next()) {					
+				if(result.next()) {	
+					currentLoginID = result.getInt(1);
+					System.out.println(currentLoginID);
 					loginBtn.getScene().getWindow().hide();
 					Parent root = FXMLLoader.load(getClass().getResource("EffortConsole.fxml"));
 					Stage stage = new Stage();

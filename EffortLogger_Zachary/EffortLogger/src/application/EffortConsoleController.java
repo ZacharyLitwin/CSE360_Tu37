@@ -29,12 +29,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-public class EffortConsoleController {
+public class EffortConsoleController extends LoginController {
 	
 	// class used to hold entry data
 	class Entry
 	{
 		public Integer entriesID;
+		public Integer empID;;
 		public String projectName;
 	    public String date; 
 	    public String startTime;  
@@ -207,6 +208,7 @@ public class EffortConsoleController {
 	    	// test make new entry and insert it
 			 	   Entry newEntry = new Entry();
 			    	newEntry.entriesID = 0;
+			    	newEntry.empID = currentLoginID;
 			    	newEntry.projectName = projectName;
 			    	newEntry.date = date;
 			    	newEntry.startTime = startTime;
@@ -384,8 +386,8 @@ public class EffortConsoleController {
   		// I don't know why this mess works but it does
   		void insertEntry(Entry entryToInsert) {
   			connect = database.connectDb("empdb");
-  		      String query = " insert into effort_entries (projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
-  		    	        + " values ( ?, ?, ?, ?, ?, ?, ?)";
+  		      String query = " insert into effort_entries (empID, projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
+  		    	        + " values (?, ?, ?, ?, ?, ?, ?, ?)";
   		      PreparedStatement preparedStmt = null;
   			try {
   				preparedStmt = connect.prepareStatement(query);
@@ -394,23 +396,25 @@ public class EffortConsoleController {
   				e.printStackTrace();
   			}
   		      try {
-					preparedStmt.setString	(1, entryToInsert.projectName);
+  		    	  	
+  		    	  preparedStmt.setInt	(1, entryToInsert.empID);
+					preparedStmt.setString	(2, entryToInsert.projectName);
 					
 					java.util.Date parsedDate = dateFormat.parse(entryToInsert.date);
 					Date sqlDate = new Date(parsedDate.getTime());
-					preparedStmt.setDate  	(2, sqlDate);
+					preparedStmt.setDate  	(3, sqlDate);
 					
 					java.util.Date parsedTimeStart = timeFormat.parse(entryToInsert.startTime);
 					Time sqlTimeStart = new Time(parsedTimeStart.getTime());
-					preparedStmt.setTime	(3, sqlTimeStart);
+					preparedStmt.setTime	(4, sqlTimeStart);
 					
 					java.util.Date parsedTimeStop = timeFormat.parse(entryToInsert.stopTime);
 					Time sqlTimeStop = new Time(parsedTimeStop.getTime());
-					preparedStmt.setTime	(4, sqlTimeStop);
+					preparedStmt.setTime	(5, sqlTimeStop);
 					
-					preparedStmt.setString 	(5, entryToInsert.lifeCycleStep);
-					preparedStmt.setString 	(6, entryToInsert.category);
-					preparedStmt.setString 	(7, entryToInsert.detail);
+					preparedStmt.setString 	(6, entryToInsert.lifeCycleStep);
+					preparedStmt.setString 	(7, entryToInsert.category);
+					preparedStmt.setString 	(8, entryToInsert.detail);
   			} catch (SQLException | ParseException e) {
   				// TODO Auto-generated catch block
   				e.printStackTrace();

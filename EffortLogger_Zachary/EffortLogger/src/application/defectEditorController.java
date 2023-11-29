@@ -26,7 +26,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-public class defectEditorController {
+public class defectEditorController extends LoginController{
 	//-----------------------------------------------------------------------------------
 	// Defect class used to hold entry data and arrayList to store them
     //-----------------------------------------------------------------------------------
@@ -34,6 +34,7 @@ public class defectEditorController {
 		class Defect
 		{
 			public Integer defectID;
+			public Integer empID;
 			public String projectName;
 		    public String defectName; 
 		    public String defectDef;  
@@ -52,6 +53,7 @@ public class defectEditorController {
 		 ArrayList<Defect> defectList = new ArrayList<Defect>();
 		 
 		 ArrayList<String> defectIDs = new ArrayList<String>();
+		 ArrayList<String> empIDs = new ArrayList<String>();
 		 ArrayList<String> projectNames = new ArrayList<String>();
 		 ArrayList<String> defectNames = new ArrayList<String>();
 		 ArrayList<String> defectDefs = new ArrayList<String>();
@@ -147,6 +149,7 @@ public class defectEditorController {
 			if (selectProject.getValue() != null){
 				// get that project's cooresponding defects
 				defectlistmaker();
+				loadDefects.setItems(defectDisplayList);
 				
 				// enable all controls a project was selected
 		    	createDefect.setDisable(false);
@@ -198,8 +201,31 @@ public class defectEditorController {
 	
 	// handles loading the existing defects into their combo box
 		@FXML
-		void loadDefectsAction(MouseEvent event) {
-			loadDefects.setItems(defectDisplayList);	
+		void loadDefectsAction(ActionEvent event) {
+			if(loadDefects.getValue() != null) {
+				for(int i = 0; i < defectList.size(); i++) {
+					if(defectList.get(i).toString().equals(loadDefects.getValue())) {
+						System.out.println("Found matching Defect");
+						stepsInjectedComboBox.setValue(defectList.get(i).defectsInjected);
+						stepsRemovedComboBox.setValue(defectList.get(i).defectsRemoved);
+						defectCategoryComboBox.setValue(defectList.get(i).defectsCategory);
+						defectDetails.setText(defectList.get(i).defectName);
+						defectSymptoms.setText(defectList.get(i).defectDef);
+						if(defectList.get(i).status.equals("closed")) {
+							System.out.println("closed");
+							defectStatus.setText("Status: Closed");
+						}
+						else if(defectList.get(i).status.equals("open")){
+							System.out.println("open");
+							defectStatus.setText("Status: Open");
+						}
+						else {
+							System.out.println("Not good");
+							defectStatus.setText("Status: Open");
+						}
+					}
+				}
+			}
 		}
 	
 	// handles creating new defects and checks if all inputs aren't null
@@ -241,11 +267,9 @@ public class defectEditorController {
 			     newDefect.defectsInjected = stepsInjectedComboBox.getValue();
 			     newDefect.defectsRemoved = stepsRemovedComboBox.getValue();
 			     newDefect.defectsCategory = defectCategoryComboBox.getValue();
-			     newDefect.fix = "null";
-			     if (defectStatus.getText().contains("Closed")) {
-			    	 newDefect.status = "open";
-						defectStatus.setText("Status: Open");
-					} 
+			     newDefect.fix = "null";	// new defects don't have a fix
+			     newDefect.status = "open"; // new defects are set to pen
+
 				// insert into database
 			    insertNewDefect(newDefect);
 			}
@@ -255,31 +279,10 @@ public class defectEditorController {
 		@FXML
 		void closeDefects(ActionEvent event) {
 			if (loadDefects.getValue() != null){
-				 connect = database.connectDb("empdb");
-				 String sql = "UPDATE defects SET status = 'closed' WHERE defectsName = ?";
-				 try {
-					prepare = connect.prepareStatement(sql);
-					defectStatus.setText("Status: Closed");
-					prepare.setString(1, loadDefects.getValue());
-					prepare.executeUpdate();
-					
-				 }catch(Exception e) {e.printStackTrace();}
-				 finally{
-					 if (result != null) {
-		    	        try {
-		    	        	result.close();
-		    	        } catch (SQLException e) {e.addSuppressed(null);}
-		    	    }
-		    	    if (prepare != null) {
-		    	        try {
-		    	            prepare.close();
-		    	        } catch (SQLException e) { e.addSuppressed(null);}
-		    	    }
-		    	    if (connect != null) {
-		    	        try {
-		    	            connect.close();
-		    	        } catch (SQLException e) { e.addSuppressed(null);}
-		    	    }
+				for(int i = 0; i < defectList.size(); i++) {
+					if(defectList.get(i).toString().equals(loadDefects.getValue())) {
+						setStatus(defectList.get(i), "closed");
+					}
 				}
 			}
 		}
@@ -288,31 +291,10 @@ public class defectEditorController {
 		@FXML 
 		void reopenDefects(ActionEvent event) {
 			if (loadDefects.getValue() != null){
-				String sql = "UPDATE defects SET status = 'open' WHERE defectsName = ?";
-				connect = database.connectDb("empdb");
-				try {
-					prepare = connect.prepareStatement(sql);
-					defectStatus.setText("Status: Open");
-					prepare.setString(1, loadDefects.getValue());
-					prepare.executeUpdate();
-					
-				}catch(Exception e) {e.printStackTrace();}
-				finally{
-					if (result != null) {
-				        try {
-				            result.close();
-				        } catch (SQLException e) {e.addSuppressed(null);}
-				    }
-				    if (prepare != null) {
-				        try {
-				            prepare.close();
-				        } catch (SQLException e) { e.addSuppressed(null);}
-				    }
-				    if (connect != null) {
-				        try {
-				            connect.close();
-				        } catch (SQLException e) { e.addSuppressed(null);}
-				    }
+				for(int i = 0; i < defectList.size(); i++) {
+					if(defectList.get(i).toString().equals(loadDefects.getValue())) {
+						setStatus(defectList.get(i), "open");
+					}
 				}
 			}
 		}
@@ -521,8 +503,10 @@ public class defectEditorController {
 	
 	void defectlistmaker() {
 		defectList.clear();
+		defectDisplayList.clear();
 
 		setArrayList(defectIDs,"defectsID","defects");
+		setArrayList(empIDs,"empID","defects");
     	setArrayList(projectNames,"projectName","defects");
     	setArrayList(defectNames,"defectsName","defects");
     	setArrayList(defectDefs,"defectsDef","defects");
@@ -535,6 +519,7 @@ public class defectEditorController {
 		for(int i = 0; i < defectIDs.size(); i++) {
 			Defect defect = new Defect();
 			defect.defectID = Integer.valueOf(defectIDs.get(i));
+			defect.empID = Integer.valueOf(empIDs.get(i));
 			defect.projectName = projectNames.get(i);
 			defect.defectName = defectNames.get(i);
 			defect.defectDef = defectDefs.get(i);
@@ -544,8 +529,7 @@ public class defectEditorController {
 			defect.fix = fixes.get(i);
 			defect.status = statuses.get(i);
 			defectList.add(defect);
-			if(defect.projectName.equals(selectProject.getValue())) {
-				System.out.print("Something");
+			if(defect.projectName.equals(selectProject.getValue()) && (currentLoginID == defect.empID)) {
 				defectDisplayList.add(defect.toString());
 			}
 		}
@@ -556,7 +540,8 @@ public class defectEditorController {
     //-----------------------------------------------------------------------------------
 	
 	void insertNewDefect(Defect newDefect) {
-		String sql = "INSERT INTO defects (projectName, defectsName, defectsDef, defectsInjected, defectsRemoved, defectCategory, fix, status) values(?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO defects (projectName, defectsName, defectsDef, defectsInjected, defectsRemoved, defectCategory, fix, status, empID)" 
+						+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		connect = database.connectDb("empdb");
 		try {
 			prepare = connect.prepareStatement(sql);
@@ -568,6 +553,7 @@ public class defectEditorController {
 			prepare.setString(6, newDefect.defectsCategory);
 			prepare.setString(7, newDefect.fix);
 			prepare.setString(8, newDefect.status);
+			prepare.setInt(9,  currentLoginID);
 			prepare.executeUpdate();
 		}catch(Exception e) {e.printStackTrace();}
 		finally{
@@ -612,4 +598,43 @@ public class defectEditorController {
 				preparedStmt.execute();
 			}catch(Exception e) {e.printStackTrace();}
 	}
+	
+	//-----------------------------------------------------------------------------------
+    // function that takes in an defect name and status and updates the status
+    //-----------------------------------------------------------------------------------
+	
+	
+	void setStatus(Defect defectToChange, String newStatus) {
+		connect = database.connectDb("empdb");
+		String sql = "UPDATE defects SET status = ? WHERE defectsName = ?";
+		try {
+			prepare = connect.prepareStatement(sql);
+			prepare.setString(1, newStatus);
+			prepare.setString(2, defectToChange.defectName);
+			prepare.executeUpdate();
+			
+		}catch(Exception e) {e.printStackTrace();}
+		finally{
+			if (result != null) {
+		        try {
+		            result.close();
+		        } catch (SQLException e) {e.addSuppressed(null);}
+		    }
+		    if (prepare != null) {
+		        try {
+		            prepare.close();
+		        } catch (SQLException e) { e.addSuppressed(null);}
+		    }
+		    if (connect != null) {
+		        try {
+		            connect.close();
+		        } catch (SQLException e) { e.addSuppressed(null);}
+		    }
+		}
+	}
+	
+	
+	
+	
+	
 }

@@ -37,7 +37,7 @@ import javafx.scene.text.Text;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
-public class EffortEditorController {
+public class EffortEditorController extends LoginController{
 	
 	// this represents the expected input of the date text field
 	private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
@@ -65,6 +65,7 @@ public class EffortEditorController {
 	class Entry
 	{
 		public Integer entriesID;
+		public Integer empID;
 		public String projectName;
 	    public String date; 
 	    public String startTime;  
@@ -89,6 +90,7 @@ public class EffortEditorController {
 	 ArrayList<String> categorys = new ArrayList<String>();
 	 ArrayList<String> details = new ArrayList<String>();
 	 ArrayList<String> projectNames = new ArrayList<String>();
+	 ArrayList<String> empIDs = new ArrayList<String>();
 	 
 	 // holds the toStrings() of entries that should be displayed in the entry combo box
 	 ObservableList<String> entriesList = FXCollections.observableArrayList();
@@ -637,6 +639,7 @@ public class EffortEditorController {
     	setArrayList(lifeCycleSteps,"lifeCycleStep","effort_entries");
     	setArrayList(categorys,"category","effort_entries");
     	setArrayList(details,"detail","effort_entries");
+    	setArrayList(empIDs,"empID","effort_entries");
     	
 		for(int i = 0; i < dates.size(); i++) {
 			Entry entry = new Entry();
@@ -648,8 +651,9 @@ public class EffortEditorController {
 			entry.lifeCycleStep = lifeCycleSteps.get(i);
 			entry.category = categorys.get(i);
 			entry.detail = details.get(i);
+			entry.empID = Integer.valueOf(empIDs.get(i));
 			entryList.add(entry);
-			if(entry.projectName.equals(projects.getValue())) {
+			if(entry.projectName.equals(projects.getValue()) && (currentLoginID == entry.empID)) {
 				entriesList.add(entry.toString());
 			}
 		}
@@ -691,8 +695,8 @@ public class EffortEditorController {
 		
 		void replaceEntry(Entry entryToInsert) {
 			connect = database.connectDb("empdb");
-		      String query = " insert into effort_entries (entriesID, projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
-		    	        + " values (?, ?, ?, ?, ?, ?, ?, ?)";
+		      String query = " insert into effort_entries (entriesID, projectName, date, startTime, stopTime, lifeCycleStep, category, detail, empID)"
+		    	        + " values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		      PreparedStatement preparedStmt = null;
 			try {
 				preparedStmt = connect.prepareStatement(query);
@@ -718,6 +722,7 @@ public class EffortEditorController {
 			    preparedStmt.setString 	(6, entryToInsert.lifeCycleStep);
 			    preparedStmt.setString 	(7, entryToInsert.category);
 			    preparedStmt.setString 	(8, entryToInsert.detail);
+			    preparedStmt.setInt		(9, entryToInsert.empID);
 			} catch (SQLException | ParseException e) {
 				e.printStackTrace();
 			}

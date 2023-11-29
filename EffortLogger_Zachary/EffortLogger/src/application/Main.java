@@ -8,11 +8,13 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 
 
+
 public class Main extends Application {
+	public int loggedInID = 0;
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			Parent root = FXMLLoader.load(getClass().getResource("defectEditor.fxml"));
+			Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
 			Scene scene = new Scene(root);
 			
 			primaryStage.setTitle("Carter is too cool for school");

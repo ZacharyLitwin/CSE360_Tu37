@@ -63,7 +63,7 @@
                   </Label>
                   <HBox prefHeight="22.0" prefWidth="600.0">
                      <children>
-                        <ComboBox fx:id="loadDefects" nodeOrientation="LEFT_TO_RIGHT" onMouseClicked="#loadDefectsAction" prefHeight="26.0" prefWidth="281.0">
+                        <ComboBox fx:id="loadDefects" nodeOrientation="LEFT_TO_RIGHT" onAction="#loadDefectsAction" prefHeight="26.0" prefWidth="281.0">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
