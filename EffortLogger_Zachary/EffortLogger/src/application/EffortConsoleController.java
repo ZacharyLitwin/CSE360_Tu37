@@ -357,6 +357,7 @@ public class EffortConsoleController {
 				stage.show();
 	    	}catch(Exception e) {e.printStackTrace();}
 	    }
+	    
     //-----------------------------------------------------------------------------------
     // Runs at the screen's startup
     //-----------------------------------------------------------------------------------
@@ -382,8 +383,8 @@ public class EffortConsoleController {
     // Takes in an entry object that is in the entry list.
   		// I don't know why this mess works but it does
   		void insertEntry(Entry entryToInsert) {
-  			connect = database.connectDb("definitions");
-  		      String query = " insert into entries (projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
+  			connect = database.connectDb("empdb");
+  		      String query = " insert into effort_entries (projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
   		    	        + " values ( ?, ?, ?, ?, ?, ?, ?)";
   		      PreparedStatement preparedStmt = null;
   			try {

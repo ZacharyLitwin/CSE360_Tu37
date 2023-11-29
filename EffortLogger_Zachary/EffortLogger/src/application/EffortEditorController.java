@@ -32,6 +32,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
@@ -94,6 +95,8 @@ public class EffortEditorController {
 	 
 	 // boolean used to track if a change to an entry has happened. initially false.
 	 boolean entryChanged = false;
+	 // boolean used to temporarily ignore listeners
+	 private boolean ignoreListener = false;
 	 
 	
 	//	DATABASE TOOLS
@@ -155,9 +158,6 @@ public class EffortEditorController {
     // and should be populated with all entries that match the project name.
     @FXML
     void projectSelected(ActionEvent event) {
-    	// test message 
-    	System.out.println("A Project was selected");
-    	
     	// populate the entry list with the matching entries
     	entrylistmaker();
     	entries.setItems(entriesList);	
@@ -171,8 +171,7 @@ public class EffortEditorController {
     // once an entry is selected the rest of the options for changing entries should be enabled.
     @FXML
     void entrySelected(ActionEvent event) {
-    	// test message
-    	System.out.println("An Entry was selected");
+    	ignoreListener = true;
     	    
         // find the selected entry from the entry list
         Entry selectedEntry = new Entry();
@@ -189,8 +188,17 @@ public class EffortEditorController {
         categories.setDisable(false);
         categories.setValue(selectedEntry.category);
         
-        detailBox.setDisable(false);
-        detailBox.setValue(selectedEntry.detail);
+        if(selectedEntry.category.equals("Others")) {
+        	otherField.setText(selectedEntry.detail);
+        	otherField.setDisable(false);
+    	    otherField.setVisible(true);
+    	    otherDetailText.setVisible(true);
+        }
+        
+        else {
+        	 detailBox.setDisable(false);
+             detailBox.setValue(selectedEntry.detail);
+        }
         
         stopTimeField.setDisable(false);
         stopTimeField.setText(selectedEntry.stopTime);
@@ -204,6 +212,8 @@ public class EffortEditorController {
         splitBtn.setDisable(false);
         updateBtn.setDisable(false);
         deleteBtn.setDisable(false);
+        
+        ignoreListener = false;
     }
 
     
@@ -215,51 +225,83 @@ public class EffortEditorController {
     // update the entryChanged boolean and the text of the attributesChangesSaved text
     @FXML
     void dateChanged(ActionEvent event) {
-    	entryChanged = true;
-    	System.out.println("Date change Detected");
+    	if(!ignoreListener) {
+	    	entryChanged = true;
+	    	attributesChangesSaved.setText("These Attributes have not been saved");
+	    	attributesChangesSaved.setFill(Color.RED);
+    	}
+
     }
     
     // the info in the start time text field was changed. if the input passes a format check then
     // update the entryChanged boolean and the text of the attributesChangesSaved text
     @FXML
     void StartTimeChanged(ActionEvent event) {
-    	entryChanged = true;
-    	System.out.println("Start Time change Detected");
+    	if(!ignoreListener) {
+	    	entryChanged = true;
+	    	attributesChangesSaved.setText("These Attributes have not been saved");
+	    	attributesChangesSaved.setFill(Color.RED);
+    	}
+
     }
     
     // the info in the stop time text field was changed. if the input passes a format check then
     // update the entryChanged boolean and the text of the attributesChangesSaved text
     @FXML
     void stopTimeChanged(ActionEvent event) {
-    	entryChanged = true;
-    	System.out.println("Stop Time change Detected");
+    	if(!ignoreListener) {
+	    	entryChanged = true;
+	    	attributesChangesSaved.setText("These Attributes have not been saved");
+	    	attributesChangesSaved.setFill(Color.RED);
+    	}
+
     }
     
     // if the category combo box is changed update entryChanged boolean and and the text 
     // of the attributesChangesSaved text. If time add logic to determine if combo was actually changed
     @FXML
     void categoryChanged(ActionEvent event) {
-    	entryChanged = true;
-    	if(categories.getValue() != null) {
-    		// sets the enables and visibilities of the context dependent combo box 
+    	if(!ignoreListener) {
+	    	entryChanged = true;
+	    	attributesChangesSaved.setText("These Attributes have not been saved");
+	    	attributesChangesSaved.setFill(Color.RED);
+    	}
+		if(categories.getValue() != null) {
+			// sets the enables and visibilities of the context dependent combo box 
 	    	if(categories.getValue().equals("Plans")) {
 	    		System.out.println("Plans");
 	    		setCBox(detailBox, "plans");
+	    		detailBox.setDisable(false);
+	    		otherField.setDisable(true);
+	    	    otherField.setVisible(false);
+	    	    otherDetailText.setVisible(false);
 	
 	    	}
 	    	else if(categories.getValue().equals("Interruptions")) {
 	    		System.out.println("Interruptions");
 	    		setCBox(detailBox, "interruptions");
+	    		detailBox.setDisable(false);
+	    		otherField.setDisable(true);
+	    	    otherField.setVisible(false);
+	    	    otherDetailText.setVisible(false);
 	
 	    	}
 	    	else if(categories.getValue().equals("Deliverables")) {
 	    		System.out.println("deliverables");
 	    		setCBox(detailBox, "deliverables");
+	    		detailBox.setDisable(false);
+	    		otherField.setDisable(true);
+	    	    otherField.setVisible(false);
+	    	    otherDetailText.setVisible(false);
 	
 	    	}
 	    	else if(categories.getValue().equals("Defects")) {
 	    		System.out.println("Defects");
 	    		setCBox(detailBox, "defects");
+	    		detailBox.setDisable(false);
+	    		otherField.setDisable(true);
+	    	    otherField.setVisible(false);
+	    	    otherDetailText.setVisible(false);
 	    	}
 	    	else if(categories.getValue().equals("Others")) {
 	    		System.out.println("Others");
@@ -269,8 +311,7 @@ public class EffortEditorController {
 	    		
 	    	    detailBox.setValue(null);
 	    	    detailBox.setDisable(true);
-	   
-	    	}
+			}
     	}
     }
     
@@ -278,16 +319,22 @@ public class EffortEditorController {
     //of the attributesChangesSaved text. If time add logic to determine if combo was actually changed
     @FXML
     void lifeCycleChanged(ActionEvent event) {
-    	entryChanged = true;
-    	System.out.println("The Entry's Life Cycle Step was changed");
+    	if(!ignoreListener) {
+	    	entryChanged = true;
+	    	attributesChangesSaved.setText("These Attributes have not been saved");
+	    	attributesChangesSaved.setFill(Color.RED);
+    	}
     }
     
     // if the plan/deliverable/interruption/other combo box is changed update entryChanged boolean and and the text 
     //of the attributesChangesSaved text. If time add logic to determine if combo was actually changed
     @FXML
     void detailsChanged(ActionEvent event) {
-    	entryChanged = true;
-    	System.out.println("The Entry's detail was changed");
+    	if(!ignoreListener) {
+	    	entryChanged = true;
+	    	attributesChangesSaved.setText("These Attributes have not been saved");
+	    	attributesChangesSaved.setFill(Color.RED);
+    	}
     }
     
     //-----------------------------------------------------------------------------------
@@ -309,16 +356,17 @@ public class EffortEditorController {
     // if no entry is selected
     @FXML
     void deleteEntryBtn(ActionEvent event) {
-    	System.out.println("Delete log button was pressed");
     	for(int i = 0; i < entryList.size(); i++) {
     		if(entryList.get(i).toString().equals(entries.getValue())) {
     			// delete the matching entry
     			System.out.println("Found matching Entry");
-    			deleteEntry(entryList.get(i), "definitions");
-    			// repopulate the entry list with the new entries
+    			deleteEntry(entryList.get(i), "empdb");
+    			// repopulate the entry list with the updated entries
+    			ignoreListener = true;
     	    	entrylistmaker();
-    	    	entries.setItems(entriesList);	
-    	    	return;
+    	    	entries.setItems(entriesList);
+    	    	ignoreListener = false;
+    	    	break;
     		}
     	}
     }
@@ -326,7 +374,6 @@ public class EffortEditorController {
     // Changes the scene to the Effort Log screen.
     @FXML
     void proceedToLogBtn(ActionEvent event) {
-    	System.out.println("The Proceed To Log button was pressed");
     	try {
     		toLogBtn.getScene().getWindow().hide();
 			Parent root = FXMLLoader.load(getClass().getResource("EffortConsole.fxml"));
@@ -342,23 +389,69 @@ public class EffortEditorController {
     // then deleting the original
     @FXML
     void splitEntryBtn(ActionEvent event) {
-    	System.out.println("The Split Log Button was pressed");
+    	alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Error Message");
+		alert.setHeaderText(null);
+		alert.setContentText("Not yet implemented");
+		alert.show();	
     }
+    
+    
     
     // gets the changed values from the effort entry info combo boxes and the times from the 
     // text fields. Should check what was entered in the text fields and display a message if 
     // entered info is not valid
     @FXML
     void updateEntryBtn(ActionEvent event) {
-    	System.out.println("The Update Entry Button was pressed");
+    	String errorMessage = "no error";
+    	boolean wasError = false;
     	// check if the input of the text fields is valid
     	boolean validDate = isValidDate(dateField.getText());
     	boolean validStartTime = isValidTime(startTimeField.getText());
     	boolean validStopTime = isValidTime(stopTimeField.getText());
     	
     	// if all three are valid then update the entry
-    	if(validDate && validStartTime && validStopTime) {
-    		
+    	if(!entryChanged) {
+    		errorMessage = "Entry hasn't been changed";
+			wasError = true;
+    	}
+    	else if(!validDate) {
+    		errorMessage = "Date not vaild";
+			wasError = true;
+    	}
+    	else if(!validStartTime) {
+    		errorMessage = "start time not valid";
+			wasError = true;
+    	}
+    	else if(!validStopTime) {
+    		errorMessage = "end time not valid";
+			wasError = true;
+    	}
+    	else if(lifecycles.getValue() == null) {
+    		errorMessage = "No life cycle step selected";
+			wasError = true;
+    	}
+    	else if(categories.getValue() == null) {
+			errorMessage = "No category selected";
+			wasError = true;
+		}
+    	else if(categories.getValue().equals("Others") && otherField.getText().isEmpty()) {
+    		errorMessage = "Other test field is blank";
+			wasError = true;
+    	}
+    	else if(!categories.getValue().equals("Others") &&  detailBox.getValue() == null) {
+    		errorMessage = "No detail selected";
+			wasError = true;
+    	}
+    	
+    	if(wasError) {
+    		alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error Message");
+			alert.setHeaderText(null);
+			alert.setContentText(errorMessage);
+			alert.show();	
+    	}
+    	else{
     		// temp Entry that we can modify and insert back into the list
     		Entry tempEntry = new Entry();
     		
@@ -368,7 +461,7 @@ public class EffortEditorController {
         			// delete the matching entry
         			System.out.println("Found matching Entry");
         			tempEntry = entryList.get(i);
-        			deleteEntry(entryList.get(i), "definitions");
+        			deleteEntry(entryList.get(i), "empdb");
         		}
         	}
     		
@@ -376,46 +469,49 @@ public class EffortEditorController {
     		tempEntry.date = dateField.getText();
     		tempEntry.startTime = startTimeField.getText();
     		tempEntry.stopTime = stopTimeField.getText();	
-    		
-    		if(lifecycles.getValue() != null)
-    			tempEntry.lifeCycleStep = lifecycles.getValue();
-    		if(categories.getValue() != null) {
-	    		tempEntry.category = categories.getValue();
-	    		if(categories.getValue().equals("Others")) {
-	    			if(otherField.getText() != null) {
-	    			tempEntry.detail = otherField.getText();
-	    			}
-	    			else {
-	    				System.out.println("text inputs are NOT valid");
-	    	    		alert = new Alert(AlertType.ERROR);
-	    				alert.setTitle("Error Message");
-	    				alert.setHeaderText(null);
-	    				alert.setContentText("Make The other details text is not blank");
-	    				alert.show();
-	    			}
-	    		}
-	    		else if(detailBox.getValue() != null);
-	    			tempEntry.detail = detailBox.getValue();
-	        	}   	
+			tempEntry.lifeCycleStep = lifecycles.getValue();
+    		tempEntry.category = categories.getValue();
+    		if(tempEntry.category.equals("Others")) {
+    			tempEntry.detail = otherField.getText();
+    		}
+    		else {
+    			tempEntry.detail = detailBox.getValue();
+        	}   	
     		
     		// insert the new entry into the database
-    		insertEntry(tempEntry);
+    		replaceEntry(tempEntry);
     		
-    		// fix the menus
-    		entrylistmaker();
-	    	entries.setItems(entriesList);	
-    	}
-    	else {
-    		System.out.println("text inputs are NOT valid");
-    		alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Error Message");
-			alert.setHeaderText(null);
-			alert.setContentText("Make sure only valid times and dates are entered");
-			alert.show();
+    		ignoreListener = true;
+    		
+    		projects.setValue(null);
+	        
+    		entries.setDisable(true);
+	        categories.setDisable(true);
+	        lifecycles.setDisable(true);
+	        detailBox.setDisable(true);
+	        
+	        stopTimeField.setDisable(true);
+	        startTimeField.setDisable(true);
+	        dateField.setDisable(true);
+	        splitBtn.setDisable(true);
+	        updateBtn.setDisable(true);
+	        deleteBtn.setDisable(true);
+	        clearBtn.setDisable(true);
+	        
+	        otherField.setDisable(true);
+	        otherField.setVisible(false);
+	        otherDetailText.setVisible(false);
+	        
+	     // reset the ignore listener flag
+	    	ignoreListener = false;
+        
+	        // reset the changes saved flag
+	        entryChanged = false;
+	        attributesChangesSaved.setText("These Attributes have been saved");
+	    	attributesChangesSaved.setFill(Color.BLACK);
     	}
     }
 
-    
     //-----------------------------------------------------------------------------------
     // Runs at the screen's startup
     //-----------------------------------------------------------------------------------
@@ -502,7 +598,7 @@ public class EffortEditorController {
 		// make sure array list is empty
 		list.clear();
 		String sql = "SELECT "+ name +" FROM " + table;
-		connect = database.connectDb("definitions");
+		connect = database.connectDb("empdb");
 		try {
 			result = connect.createStatement().executeQuery(sql);
 			while(result.next()) {	
@@ -533,14 +629,14 @@ public class EffortEditorController {
 		entriesList.clear();
 		
 		// initializes the array lists to have all info for entry construction
-    	setArrayList(entriesIDs,"entriesID","entries");
-    	setArrayList(projectNames,"projectName","entries");
-    	setArrayList(dates,"date","entries");
-    	setArrayList(startTimes,"startTime","entries");
-    	setArrayList(stopTimes,"stopTime","entries");
-    	setArrayList(lifeCycleSteps,"lifeCycleStep","entries");
-    	setArrayList(categorys,"category","entries");
-    	setArrayList(details,"detail","entries");
+    	setArrayList(entriesIDs,"entriesID","effort_entries");
+    	setArrayList(projectNames,"projectName","effort_entries");
+    	setArrayList(dates,"date","effort_entries");
+    	setArrayList(startTimes,"startTime","effort_entries");
+    	setArrayList(stopTimes,"stopTime","effort_entries");
+    	setArrayList(lifeCycleSteps,"lifeCycleStep","effort_entries");
+    	setArrayList(categorys,"category","effort_entries");
+    	setArrayList(details,"detail","effort_entries");
     	
 		for(int i = 0; i < dates.size(); i++) {
 			Entry entry = new Entry();
@@ -560,26 +656,25 @@ public class EffortEditorController {
 		// updates the message under the project combo box to show the number of entries in a project
 		effortLogEntryText.setText(entriesList.size() + " effort log entries for this project");
 	}
-		//-----------------------------------------------------------------------------------
-		// function that deletes an entry from the SQL database.
-	    //-----------------------------------------------------------------------------------
-	    // Takes in an entry object that is in the entry list.
-		// I don't know why this mess works but it does
+	
+	//-----------------------------------------------------------------------------------
+	// function that deletes an entry from the SQL database.
+    //-----------------------------------------------------------------------------------
+    // Takes in an entry object that is in the entry list.
+	// I don't know why this mess works but it does
 		
 		void deleteEntry(Entry entryToDelete, String name) {
-			connect = database.connectDb("definitions");
-		      String query = "delete from entries where entriesID = ?";
+			connect = database.connectDb("empdb");
+		      String query = "delete from effort_entries where entriesID = ?";
 		      PreparedStatement preparedStmt = null;
 			try {
 				preparedStmt = connect.prepareStatement(query);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		      try {
 				preparedStmt.setInt(1, entryToDelete.entriesID);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -588,20 +683,20 @@ public class EffortEditorController {
 			}catch(Exception e) {e.printStackTrace();}
 	    }
 		
-		//-----------------------------------------------------------------------------------
-		// function that inserts an entry to the SQL database.
-	    //-----------------------------------------------------------------------------------
-	    // Takes in an entry object that is in the entry list.
-		// I don't know why this mess works but it does
-		void insertEntry(Entry entryToInsert) {
-			connect = database.connectDb("definitions");
-		      String query = " insert into entries (entriesID, projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
+	//-----------------------------------------------------------------------------------
+	// function that inserts an entry to the SQL database.
+    //-----------------------------------------------------------------------------------
+    // Takes in an entry object that is in the entry list.
+	// I don't know why this mess works but it does
+		
+		void replaceEntry(Entry entryToInsert) {
+			connect = database.connectDb("empdb");
+		      String query = " insert into effort_entries (entriesID, projectName, date, startTime, stopTime, lifeCycleStep, category, detail)"
 		    	        + " values (?, ?, ?, ?, ?, ?, ?, ?)";
 		      PreparedStatement preparedStmt = null;
 			try {
 				preparedStmt = connect.prepareStatement(query);
 			} catch (SQLException e) {
-				// Auto-generated catch block
 				e.printStackTrace();
 			}
 		      try {
@@ -624,7 +719,6 @@ public class EffortEditorController {
 			    preparedStmt.setString 	(7, entryToInsert.category);
 			    preparedStmt.setString 	(8, entryToInsert.detail);
 			} catch (SQLException | ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -633,16 +727,19 @@ public class EffortEditorController {
 			}catch(Exception e) {e.printStackTrace();}
 	    }
 		
-		//-----------------------------------------------------------------------------------
-		// function that deletes all the entries for a project
-	    //-----------------------------------------------------------------------------------
-	    // Takes in an entry object that is in the entry list.
-		// SQL notation:   DELETE FROM `definitions`.`entries` WHERE (`projectName` = '?');
+	//-----------------------------------------------------------------------------------
+	// function that deletes all the entries for a project
+    //-----------------------------------------------------------------------------------
+    // Takes in an entry object that is in the entry list.
+	// SQL notation:   DELETE FROM `definitions`.`entries` WHERE (`projectName` = '?');
 		void deleteAllEntries(String projectname) {
-			String sql = "DELETE FROM 'defintions'.'entries' WHERE (`projectName` = '" + projectname +"');";
-			connect = database.connectDb("definitions");
+			connect = database.connectDb("empdb");
+			String query = "delete from effort_entries where ( projectName = ? )";
+			 PreparedStatement preparedStmt = null;
 			try {
-				result = connect.createStatement().executeQuery(sql);
+				preparedStmt = connect.prepareStatement(query);
+				preparedStmt.setString	(1, projectname);
+				preparedStmt.execute();
 			}catch(Exception e) {e.printStackTrace();}
 			finally{
 				if (result != null) {
