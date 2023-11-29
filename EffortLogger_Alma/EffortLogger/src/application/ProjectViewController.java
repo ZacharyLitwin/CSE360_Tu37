@@ -1,27 +1,19 @@
 package application;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.util.Callback;
 
@@ -33,9 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class ProjectViewController implements Initializable {
 
@@ -72,6 +61,7 @@ public class ProjectViewController implements Initializable {
 	private PreparedStatement prepare;
 	private ResultSet result;
 
+	//Helpful variable for data manipulation of the table base
 	private ObservableList<Project> projects = FXCollections.observableArrayList();
 	private String[] allLifeCycles = null;
 
@@ -112,6 +102,7 @@ public class ProjectViewController implements Initializable {
             projectName = project.getName();
             lifeCycle = project.getUpdateCycle();
             goAdd = true;
+            goDelete = true;
             
             
         });       
@@ -162,6 +153,19 @@ public class ProjectViewController implements Initializable {
             selectionModel.clearSelection(selectedIndices[i].intValue());
             table.getItems().remove(selectedIndices[i].intValue());
         }
+        
+        connect = database.connectDb("definitions");
+    	String sql = "DELETE FROM projects WHERE name  = '"+project.getName()+"'";
+    	String sql2 = "DELETE FROM entries WHERE projectName = '"+project.getName()+"'";
+        try {
+            prepare = connect.prepareStatement(sql);
+            prepare.executeUpdate();
+            prepare = connect.prepareStatement(sql2);
+            prepare.executeUpdate();
+        	System.out.println(sql);
+        	System.out.println(sql2);
+
+        }catch(Exception e) {e.printStackTrace();}
     }
 
     private void getData() {
@@ -171,7 +175,6 @@ public class ProjectViewController implements Initializable {
     	try {
         	prepare = connect.prepareStatement(sql);
         	result = prepare.executeQuery();
-        	int i = 0;
         	while(result.next()) {
 				projects.add(new Project(result.getInt(1), result.getString(2)));
         	}
@@ -213,23 +216,18 @@ public class ProjectViewController implements Initializable {
                         Button addBtn = new Button("Add");
                      
                         deleteBtn.setOnMouseClicked((MouseEvent event) -> {
-             
-//                            try {
-//                                project = projectsTable.getSelectionModel().getSelectedItem();
-//                                query = "DELETE FROM `project` WHERE id  ="+project.getId();
-//                                connection = DbConnect.getConnect();
-//                                preparedStatement = connection.prepareStatement(query);
-//                                preparedStatement.execute();
-//                                refreshTable();
-//                                
-//                            } catch (SQLException ex) {
-//                                Logger.getLogger(TableViewController.class.getName()).log(Level.SEVERE, null, ex);
-//                            }
-                            
-                           
-
-                          
-
+                        	connect = database.connectDb("definitions");
+                        	String sql = "DELETE FROM entries WHERE projectName  = '" + projectName + "' AND lifeCycle = '" + lifeCycle + "'";
+	                        if(goDelete) {    
+                        		try {
+	                                prepare = connect.prepareStatement(sql);
+	                                prepare.executeUpdate();
+	             
+	                            }catch(Exception e) {e.printStackTrace();}
+                	            clearAllCBox();
+                                setSelectedProjectCycles();
+	                        }
+	                        goDelete = false;
                         });
                         addBtn.setOnMouseClicked((MouseEvent event) -> {
                         	connect = database.connectDb("definitions");
@@ -241,9 +239,10 @@ public class ProjectViewController implements Initializable {
                 	            	prepare.setString(2, lifeCycle);
                 	            	prepare.executeUpdate();
                 	            }catch(Exception ev) {ev.printStackTrace();}
+                	            clearAllCBox();
+                            	setSelectedProjectCycles();
                         	} 
                         	goAdd = false;    
-                        	setSelectedProjectCycles();
                         });
 
                         HBox managebtn = new HBox(addBtn, deleteBtn);
@@ -289,6 +288,12 @@ public class ProjectViewController implements Initializable {
         }catch(Exception e) {e.printStackTrace();}
 	}
 	
+	private void clearAllCBox() {
+		for(int i = 0; i < projects.size(); i++) {
+			projects.get(i).getProjectCyclesCBox().getItems().clear();
+		}
+	}
+		
 	@Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         getData();
