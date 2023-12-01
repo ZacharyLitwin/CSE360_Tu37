@@ -1,5 +1,6 @@
 # CSE360_Tu37
 Main responsiblities:
+
   Alma Babbit: SQL database setup, Login functionality, Project creation/setup.
   
   Ishan Yelnoorkar: Defect creation/editing, and Logs screen.
