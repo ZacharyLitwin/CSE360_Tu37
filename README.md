@@ -18,3 +18,8 @@ The SQL database contains all of the project definitions, Life Cycle Steps, Effo
 previously in the excel document. 
 
 v2 also implements a planning poker system that can be run in the program and automatically updates in the SQL database. 
+
+Requirements to successfully run the appplicaiton:
+SQL Connector, Version Used for Project: 8.2.0
+JavaFX 19 or 21
+JDK 19 or 21 
