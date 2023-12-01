@@ -1,9 +1,13 @@
 # CSE360_Tu37
 Main responsiblities:
   Alma Babbit: SQL database setup, Login functionality, Project creation/setup.
+  
   Ishan Yelnoorkar: Defect creation/editing, and Logs screen.
+  
   Zachary Litwin: Effort console, and Effort Editor functionality.
+  
   Trevor Huss: Planning Poker GUI.
+  
   Karryl Dumalag: Documentation.
 
 EffortLogger: The EffortLogger_v2 is a remake and improvement over the original EffortLogger Excel Visual Basic Program.
