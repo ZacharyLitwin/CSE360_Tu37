@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.PPSessionController">
+   <children>
+      <Button fx:id="submitCards" layoutX="45.0" layoutY="351.0" mnemonicParsing="false" onAction="#submit" text="Submit Cards" />
+      <Text layoutX="177.0" layoutY="40.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Planning Poker Session">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Text>
+      <Text layoutX="70.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Member 1" wrappingWidth="87.20000000000005">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="70.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Member 2" wrappingWidth="87.20000000000005">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="70.0" layoutY="186.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Member 3" wrappingWidth="87.20000000000005">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="70.0" layoutY="237.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Member 4" wrappingWidth="87.20000000000005">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="70.0" layoutY="285.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Member 5" wrappingWidth="87.20000000000005">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Button fx:id="startRound" layoutX="246.0" layoutY="351.0" mnemonicParsing="false" onAction="#newRound" text="Start New Round" />
+      <Text layoutX="287.0" layoutY="186.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Poker Card Average: ">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <ComboBox fx:id="cycleStep" layoutX="412.0" layoutY="73.0" prefWidth="150.0" />
+      <Text layoutX="287.0" layoutY="92.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Life Cycle Step">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Button fx:id="endSession" layoutX="474.0" layoutY="351.0" mnemonicParsing="false" onAction="#end" text="End Session" />
+      <Label fx:id="avgLabel" layoutX="474.0" layoutY="165.0" prefHeight="18.0" prefWidth="46.0">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <ComboBox fx:id="m1" layoutX="157.0" layoutY="73.0" prefHeight="24.0" prefWidth="67.0" />
+      <ComboBox fx:id="m2" layoutX="157.0" layoutY="120.0" prefHeight="24.0" prefWidth="67.0" />
+      <ComboBox fx:id="m3" layoutX="157.0" layoutY="166.0" prefHeight="24.0" prefWidth="67.0" />
+      <ComboBox fx:id="m4" layoutX="157.0" layoutY="217.0" prefHeight="24.0" prefWidth="67.0" />
+      <ComboBox fx:id="m5" layoutX="157.0" layoutY="265.0" prefHeight="24.0" prefWidth="67.0" />
+   </children>
+</AnchorPane>
